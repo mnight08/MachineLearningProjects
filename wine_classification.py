@@ -18,6 +18,7 @@ from sklearn.neighbors import KNeighborsClassifier
 from sklearn.discriminant_analysis import LinearDiscriminantAnalysis
 from sklearn.naive_bayes import GaussianNB
 from sklearn.svm import SVC
+from sklearn import linear_model
 
 url = "https://archive.ics.uci.edu/ml/machine-learning-databases/wine/wine.data"
 names = ['class',
@@ -41,3 +42,8 @@ print(dataset.describe())
 
 
 
+clf=linear_model.Lasso(alpha=.1)
+clf.fit(dataset)
+
+
+print(clf.coef_)
