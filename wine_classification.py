@@ -38,12 +38,22 @@ names = ['class',
 dataset = pandas.read_csv(url, names=names,index_col=False)
 
 
-print(dataset.describe())
 
 
 
-clf=linear_model.Lasso(alpha=.1)
-clf.fit(dataset)
+ 
+#split-out dataset for sanity
+array=dataset.values
+
+X=array[:,1:13]
+Y=array[:,0]
+
+
+#ridge classifier
+clf=linear_model.RidgeClassifier(alpha=.1)
+clf.fit(X,Y)
 
 
 print(clf.coef_)
+
+
