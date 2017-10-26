@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """
-Created on Thu Oct 19 17:51:21 2017
-
+Perform exhaustive feature selection using cross validation using svm model.
+Compare accuracy.
 @author: ez pawn
 """
 
@@ -12,14 +12,10 @@ from sklearn import model_selection
 from sklearn.metrics import classification_report
 from sklearn.metrics import confusion_matrix
 from sklearn.metrics import accuracy_score
-from sklearn.linear_model import LogisticRegression
-from sklearn.tree import DecisionTreeClassifier
-from sklearn.neighbors import KNeighborsClassifier
-from sklearn.discriminant_analysis import LinearDiscriminantAnalysis
-from sklearn.naive_bayes import GaussianNB
-from sklearn.svm import SVC
-from sklearn import linear_model
 
+from sklearn.svm import SVC
+
+#Load data into data fram.
 url = "https://archive.ics.uci.edu/ml/machine-learning-databases/wine/wine.data"
 names = ['class',
 'Alcohol',
@@ -40,10 +36,9 @@ dataset = pandas.read_csv(url, names=names,index_col=False)
 
 print(dataset.describe())
 
+pritn(dataset.corr())
 
 
-clf=linear_model.Lasso(alpha=.1)
-clf.fit(dataset)
 
 
 print(clf.coef_)
