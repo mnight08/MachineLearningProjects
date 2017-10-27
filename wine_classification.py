@@ -34,7 +34,7 @@ names = ['class',
 'Hue',
 'OD280/OD315',
 'Proline']
-dataset = pandas.read_csv(url, names=names,index_col=False)
+dataset = pandas.read_csv(url, names=names)
 
 
 print(dataset.describe())
