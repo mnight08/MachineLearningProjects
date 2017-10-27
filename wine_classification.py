@@ -85,10 +85,14 @@ features=['Alcohol',
 
 
 def findsubsets(S):
-    return [subset for subset in [list(itertools.combinations(S, m)) for m in range(1,len(S)+1)]]
+    subsets=[]
+    for m in range(1,len(S)+1):
+        for subset in [list(comb) for comb in itertools.combinations(S, m)]:
+            subsets.append(subset) 
+    return subsets
 
 
-
+subsets =findsubsets(features)
 
 for name, model in models:
     for selected in subsets:
