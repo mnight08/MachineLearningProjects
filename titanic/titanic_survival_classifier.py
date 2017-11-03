@@ -58,6 +58,10 @@ grouped_sex=dataset.groupby('Sex');
 
 print(grouped_sex.count())
 
+
+
+
+
 #Numerical summary of the groups.
 #categorical variables
 #print(grouped_survivors['Sex'].count())
@@ -79,4 +83,13 @@ print(grouped_sex.count())
 
 
 #Visualization for the groups.
+
+
+
+#Fill in the data from the group
+
+
+
+
+
 
