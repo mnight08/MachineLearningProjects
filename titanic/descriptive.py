@@ -45,9 +45,19 @@ dataset = pandas.read_csv(filename)
 #Numerical summary of the data.  Some ages are missing.  Need to decide how to fill in.
 print(dataset.describe())
 
+#get histogram for the entire dataset.  This ignores
+#the categorical variables that are not 
+#coded.
+dataset[['Age','Fare','Parch','Pclass','SibSp']].hist()
 
 #Analyze relationship between survival and other variables
 grouped_survivors=dataset.groupby('Survived');
+
+#Show box plot comparing the two groups
+grouped_survivors['Age','Fare','Parch','Pclass','SibSp'].boxplot(layout=[2,1])
+
+
+grouped_survivors['Age','Fare','Parch','Pclass','SibSp'].hist()
 
 
 #Return Series with number of non-NA/null observations over requested axis
@@ -57,6 +67,10 @@ print(grouped_survivors.count())
 grouped_sex=dataset.groupby('Sex');
 
 print(grouped_sex.count())
+
+
+
+
 
 #Numerical summary of the groups.
 #categorical variables
@@ -79,4 +93,13 @@ print(grouped_sex.count())
 
 
 #Visualization for the groups.
+
+
+
+#Fill in the data from the group
+
+
+
+
+
 

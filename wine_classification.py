@@ -92,7 +92,6 @@ models.append(('SVM', SVC()))
 # evaluate each model with each subset of features.
 
 
-
 subsets =findsubsets(features)
 
 max_mean_results = []
