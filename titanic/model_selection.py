@@ -2,7 +2,16 @@
 """
 Created on Fri Nov  3 16:32:33 2017
 Perform cross validation using several out of the box models and imputation methods
-Should return the model and imputation method that maximizes
+Creates a data frame with columns 'ModName', 'Coder', 'Cleaner','ImpName','CVResults','Score'
+
+must specify imputer, coder, feature_selector module names with imputer, coder, and feature
+selector methods 
+
+The workflow of model selection is 
+raw data->coder->imputer->filter->feature_selector->colleseum->cv dataframe with objective score
+followed by a message indicating the tuple of methods that achieved the highest results.
+
+Evaluates each tuple in parallel.
 
 (avg acc)/(1+std acc).
 @author: vpx365
@@ -23,33 +32,30 @@ from sklearn.discriminant_analysis import LinearDiscriminantAnalysis
 from sklearn.naive_bayes import GaussianNB
 from sklearn.svm import SVC
 
+
+
+import itertools
+from joblib import Parallel, delayed
+import multiprocessing
+
+import time
+
+
+from coder import Coder
 from imputer import Imputer
-
-#returns a statistic that measures the cross validation results.
-def objective(results):
-    return results.mean()/(1+results.std()**2)
+from filterer import Filterer
+from feature_selector import FeatureSelector
 
 
 
-
-seed=7
-
-#Load data into data fram.
-filename="train.csv"
-#column names are auto filled. Columns are  ['PassengerId',	'Survived',	'Pclass',	'Name',	'Sex',	
-#        'Age',	'SibSp',	'Parch',	'Ticket',	'Fare',	'Cabin',	'Embarked']
-dataset = pandas.read_csv(filename)
-
-#code male and female data. Males are 0, females are 1.
-dataset.replace(to_replace={'Sex':{'male':0,'female':1}},inplace=True)
+start = time.time()
 
 
+num_cores = multiprocessing.cpu_count()
 
-max_obj=0;
-best_imputer='';
-best_model=''
-best_model_name=''
-objective_score=0
+# what are your inputs, and what operation do you want to
+# perform on each input.
+#generate a list of the coder methods in the imputer class
 
 #generate a list of the imputation methods in the imputer class
 imputer_list = [getattr(Imputer, method) for method in dir(Imputer) 
@@ -61,33 +67,84 @@ model_list={'SVM': SVC(),
             'CART': DecisionTreeClassifier(),
             'NB': GaussianNB()}
 
+#generate a list of the coder methods in the imputer class
+coder_list=[getattr(Coder, method) for method in dir(Coder) 
+                if callable(getattr(Coder, method)) and not method.startswith("__")]
+
+
+
+filter_list = [getattr(Filterer, method) for method in dir(Filterer) if callable(getattr(Filterer, method)) and not method.startswith("__")]
+feature_selector_list= [getattr(FeatureSelector, method) for method in dir(FeatureSelector) if callable(getattr(FeatureSelector, method)) and not method.startswith("__")]
+
+
+#Load data into data fram.
+filename="train.csv"
+#column names are auto filled. Columns are  ['PassengerId',	'Survived',	'Pclass',	'Name',	'Sex',	
+#        'Age',	'SibSp',	'Parch',	'Ticket',	'Fare',	'Cabin',	'Embarked']
+dataset = pandas.read_csv(filename)
+
+#returns a statistic that measures the cross validation results.
+def objective(results):
+    return results.mean()/(1+results.std())
+
+
+seed=7
+
+
+
+
+#code male and female data. Males are 0, females are 1.
+dataset.replace(to_replace={'Sex':{'male':0,'female':1}},inplace=True)
+
+
+
 #cross validation setup.
 kfold = model_selection.KFold(n_splits=10, random_state=seed)
 scoring='accuracy'
 
-#Pick the best imputer model combination based on cv.
-for imputer in imputer_list:
-    print("working on imputer method---------"+imputer.__name__)
-    imputed_data=imputer(dataset)
-    X_train=imputed_data[['Pclass',	'Sex',	'Age',	'SibSp',	'Parch',	'Fare']]
-    Y_train=imputed_data['Survived']
 
-    for model_name, model in model_list.items():
-        print("working on model*********"+model_name)
-        kfold.random_state=seed
-          
-        cv_results=model_selection.cross_val_score(model, X_train,Y_train, cv=kfold, scoring=scoring)
 
-        objective_score=objective(cv_results)
-        print(objective_score)
-        if max_obj<objective_score:
-            best_imputer=imputer
-            
-            best_model=model
-            best_model_name=model_name
+#return cv results for a given workflow
+#return list of the form 'ModName', 'Coder', 'Cleaner','ImpName','CVResults','Score'
+
+def evaluateWorkflow(code, impu, filt,feat,model):
+    
+    print("working on coder method---------"+code.__name__)
+    
+    print("working on imputer method---------"+impu.__name__)
+    print("working on filter method---------"+code.__name__)
+    print("working on feature method---------"+code.__name__)
+    
+    print("working on model---------"+model._name)
+    imputed_data=impu(dataset)
+    filtered_data=filt(imputed_data)
+    results=[]
+    for features in feat(filtered_data):
+        X_train=imputed_data[['Pclass',	'Sex',	'Age',	'SibSp',	'Parch',	'Fare']]
+        Y_train=imputed_data['Survived']
         
+        kfold.random_state=seed          
+        cv_results=model_selection.cross_val_score(model, X_train,Y_train, cv=kfold, scoring=scoring)
+        objective_score=objective(cv_results)
+        results.append([code,impu,filt,feat,model,objective_score])
+        print(objective_score)
+    return results
 
-print("The best model imputer pair were: " + best_model_name +" / "+ best_imputer.__name__)
+
+        
+    
+
+ 
+
+#Collect the results of cv.
+colleseum_results = pandas.DataFrame(Parallel(n_jobs=num_cores)
+    (delayed(evaluateWorkflow)(code,impu,filt,fea) 
+    for code,impu,filt,fea in itertools.product(coder_list,imputer_list,filter_list,feature_selector_list,model_list)))
+
+
+
+  
+
 
 
 #print(accuracy_score(Y_validation, predictions))
@@ -98,6 +155,9 @@ print("The best model imputer pair were: " + best_model_name +" / "+ best_impute
 
 #prepare submission for kaggle.
 
+
+end = time.time()
+print("Computation Time: "+ str(end - start))
 
 
 
