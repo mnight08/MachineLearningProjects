@@ -53,6 +53,12 @@ dataset[['Age','Fare','Parch','Pclass','SibSp']].hist()
 #Analyze relationship between survival and other variables
 grouped_survivors=dataset.groupby('Survived');
 
+#Show box plot comparing the two groups
+grouped_survivors['Age','Fare','Parch','Pclass','SibSp'].boxplot(layout=[2,1])
+
+
+grouped_survivors['Age','Fare','Parch','Pclass','SibSp'].hist()
+
 
 #Return Series with number of non-NA/null observations over requested axis
 print(grouped_survivors.count())
