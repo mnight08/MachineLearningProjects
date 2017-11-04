@@ -22,6 +22,9 @@ from sklearn.svm import SVC
 import itertools
 
 
+import time
+
+
 def findsubsets(S):
     subsets=[]
     for m in range(1,len(S)+1):
@@ -96,6 +99,10 @@ max_mean_results = []
 names = []
 
 
+start = time.time()
+
+
+
 max_score=0;
 max_feature_set=''
 max_model=''
@@ -127,7 +134,7 @@ for name, model in models:
         #print(msg)
         i=i+1
         if i%1000==0: 
-            print(i+"subsets testsed")
+            print(str(i)+"subsets testsed")
 print('Scoring is done! The feature set with highest mean accuracy is ')
 print(max_feature_set)
 print('With mean accuracy:'+str(max_score))
@@ -154,6 +161,7 @@ print(confusion_matrix(Y_validation, predictions))
 print(classification_report(Y_validation, predictions))
 
 
-
+end = time.time()
+print("Computation Time: "+ str(end - start))
 
 
