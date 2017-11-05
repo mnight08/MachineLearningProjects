@@ -11,19 +11,16 @@ imputed_date=imputer_naive(dataset)
 import pandas
 
 class Imputer:
+    #replace male with 0 and female with 1.
     @classmethod
     def naive(self, dataframe):
         try:        
             if type(dataframe)!=pandas.core.frame.DataFrame:
                 raise TypeError()
             else:
-                return dataframe.dropna(axis=0,subset=['Age'])
+                #code male and female data. Males are 0, females are 1.
+                return dataframe.replace(to_replace={'Sex':{'male':0,'female':1}},inplace=True)
+
         except TypeError as error:
             print("invalid type for imputation")
 
-
-
-    @classmethod
-    def replace_with_mean_of_pop(self,dataframe):
-        mean=dataframe['Age'].mean()
-        return dataframe.fillna(mean)

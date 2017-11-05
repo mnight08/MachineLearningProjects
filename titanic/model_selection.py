@@ -19,8 +19,6 @@ Evaluates each tuple in parallel.
 
 
 import pandas
-from pandas.tools.plotting import scatter_matrix
-import matplotlib.pyplot as plt
 from sklearn import model_selection
 from sklearn.metrics import classification_report
 from sklearn.metrics import confusion_matrix
@@ -93,8 +91,6 @@ seed=7
 
 
 
-#code male and female data. Males are 0, females are 1.
-dataset.replace(to_replace={'Sex':{'male':0,'female':1}},inplace=True)
 
 
 
@@ -112,23 +108,25 @@ def evaluateWorkflow(code, impu, filt,feat,model):
     print("working on coder method---------"+code.__name__)
     
     print("working on imputer method---------"+impu.__name__)
-    print("working on filter method---------"+code.__name__)
-    print("working on feature method---------"+code.__name__)
+    print("working on filter method---------"+filt.__name__)
+    print("working on feature method---------"+feat.__name__)
     
     print("working on model---------"+model._name)
     imputed_data=impu(dataset)
     filtered_data=filt(imputed_data)
-    results=[]
-    for features in feat(filtered_data):
-        X_train=imputed_data[['Pclass',	'Sex',	'Age',	'SibSp',	'Parch',	'Fare']]
-        Y_train=imputed_data['Survived']
-        
-        kfold.random_state=seed          
-        cv_results=model_selection.cross_val_score(model, X_train,Y_train, cv=kfold, scoring=scoring)
-        objective_score=objective(cv_results)
-        results.append([code,impu,filt,feat,model,objective_score])
-        print(objective_score)
-    return results
+    
+    #slice the relevant features
+    X_train=filtered_data[feat(filtered_data)]
+    
+    #validation data
+    Y_train=filtered_data['Survived']
+
+    kfold.random_state=seed          
+
+    cv_results=model_selection.cross_val_score(model, X_train,Y_train, cv=kfold, scoring=scoring)
+    objective_score=objective(cv_results)
+    print(objective_score)
+    return [code,impu,filt,feat,model,objective_score]
 
 
         
@@ -139,7 +137,7 @@ def evaluateWorkflow(code, impu, filt,feat,model):
 #Collect the results of cv.
 colleseum_results = pandas.DataFrame(Parallel(n_jobs=num_cores)
     (delayed(evaluateWorkflow)(code,impu,filt,fea) 
-    for code,impu,filt,fea in itertools.product(coder_list,imputer_list,filter_list,feature_selector_list,model_list)))
+    for code,impu,filt,fea,model in itertools.product(coder_list,imputer_list,filter_list,feature_selector_list,model_list)))
 
 
 
