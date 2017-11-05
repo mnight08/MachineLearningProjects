@@ -45,60 +45,9 @@ from filterer import Filterer
 from feature_selector import FeatureSelector
 
 
-
-start = time.time()
-
-
-num_cores = multiprocessing.cpu_count()
-
-# what are your inputs, and what operation do you want to
-# perform on each input.
-#generate a list of the coder methods in the imputer class
-
-#generate a list of the imputation methods in the imputer class
-imputer_list = [getattr(Imputer, method) for method in dir(Imputer) 
-                if callable(getattr(Imputer, method)) and not method.startswith("__")]
-model_list={'SVM': SVC(),
-            'LR': LogisticRegression(),
-            'LDA': LinearDiscriminantAnalysis(),
-            'KNN': KNeighborsClassifier(),
-            'CART': DecisionTreeClassifier(),
-            'NB': GaussianNB()}
-
-#generate a list of the coder methods in the imputer class
-coder_list=[getattr(Coder, method) for method in dir(Coder) 
-                if callable(getattr(Coder, method)) and not method.startswith("__")]
-
-
-
-filter_list = [getattr(Filterer, method) for method in dir(Filterer) if callable(getattr(Filterer, method)) and not method.startswith("__")]
-feature_selector_list= [getattr(FeatureSelector, method) for method in dir(FeatureSelector) if callable(getattr(FeatureSelector, method)) and not method.startswith("__")]
-
-
-#Load data into data fram.
-filename="train.csv"
-#column names are auto filled. Columns are  ['PassengerId',	'Survived',	'Pclass',	'Name',	'Sex',	
-#        'Age',	'SibSp',	'Parch',	'Ticket',	'Fare',	'Cabin',	'Embarked']
-dataset = pandas.read_csv(filename)
-
 #returns a statistic that measures the cross validation results.
 def objective(results):
     return results.mean()/(1+results.std())
-
-
-seed=7
-
-
-
-
-
-
-
-#cross validation setup.
-kfold = model_selection.KFold(n_splits=10, random_state=seed)
-scoring='accuracy'
-
-
 
 #return cv results for a given workflow
 #return list of the form 'ModName', 'Coder', 'Cleaner','ImpName','CVResults','Score'
@@ -130,32 +79,91 @@ def evaluateWorkflow(code, impu, filt,feat,model):
 
 
         
+
+
+
+
+if __name__ == '__evaluateWorkflow__':
+    # do stuff with imports and functions defined about
     
+    start = time.time()
 
- 
+    print(start)
+    num_cores = multiprocessing.cpu_count()
 
-#Collect the results of cv.
-colleseum_results = pandas.DataFrame(Parallel(n_jobs=num_cores)
-    (delayed(evaluateWorkflow)(code,impu,filt,fea) 
-    for code,impu,filt,fea,model in itertools.product(coder_list,imputer_list,filter_list,feature_selector_list,model_list)))
+    # what are your inputs, and what operation do you want to
+    # perform on each input.
+    #generate a list of the coder methods in the imputer class
+    
+    #generate a list of the imputation methods in the imputer class
+    imputer_list = [getattr(Imputer, method) for method in dir(Imputer) 
+                    if callable(getattr(Imputer, method)) and not method.startswith("__")]
+    model_list={'SVM': SVC(),
+            'LR': LogisticRegression(),
+            'LDA': LinearDiscriminantAnalysis(),
+            'KNN': KNeighborsClassifier(),
+            'CART': DecisionTreeClassifier(),
+            'NB': GaussianNB()}
 
+    #generate a list of the coder methods in the imputer class
+    coder_list=[getattr(Coder, method) for method in dir(Coder) 
+                if callable(getattr(Coder, method)) and not method.startswith("__")]
+
+
+
+    filter_list = [getattr(Filterer, method) for method in dir(Filterer) if callable(getattr(Filterer, method)) and not method.startswith("__")]
+    feature_selector_list= [getattr(FeatureSelector, method) for method in dir(FeatureSelector) if callable(getattr(FeatureSelector, method)) and not method.startswith("__")]
+
+    print("Generated Lists")
+
+    #Load data into data fram.
+    filename="train.csv"
+    #column names are auto filled. Columns are  ['PassengerId',	'Survived',	'Pclass',	'Name',	'Sex',	
+    #        'Age',	'SibSp',	'Parch',	'Ticket',	'Fare',	'Cabin',	'Embarked']
+    dataset = pandas.read_csv(filename)
+
+    print("loaded Data")
+
+      
+      
+
+    seed=7
+
+    #cross validation setup.
+    kfold = model_selection.KFold(n_splits=10, random_state=seed)
+    scoring='accuracy'
+
+
+
+
+    product=itertools.product(coder_list,imputer_list,filter_list,feature_selector_list,model_list)
+    print("created product")    
+    #Collect the results of cv.
+    results=Parallel(n_jobs=int(num_cores/4))    (delayed(evaluateWorkflow)(code,impu,filt,fea,model) for code,impu,filt,fea,model in product)
+
+
+
+    #colleseum_results = pandas.DataFrame(
+    #       Parallel(n_jobs=num_cores)    (delayed(evaluateWorkflow)(code,impu,filt,fea,model) 
+    #   for code,impu,filt,fea,model in itertools.product(coder_list,imputer_list,filter_list,feature_selector_list,model_list)))
+    
 
 
   
 
 
 
-#print(accuracy_score(Y_validation, predictions))
-#print(confusion_matrix(Y_validation, predictions))
-#print(classification_report(Y_validation, predictions))
+    #print(accuracy_score(Y_validation, predictions))
+    #print(confusion_matrix(Y_validation, predictions))
+    #print(classification_report(Y_validation, predictions))
 
 
 
-#prepare submission for kaggle.
+    #prepare submission for kaggle.
 
 
-end = time.time()
-print("Computation Time: "+ str(end - start))
+    end = time.time()
+    print("Computation Time: "+ str(end - start))
 
 
 
