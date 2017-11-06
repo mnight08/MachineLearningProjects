@@ -1,3 +1,6 @@
+
+
+
 # -*- coding: utf-8 -*-
 """
 Created on Fri Nov  3 16:32:33 2017
@@ -59,8 +62,8 @@ def evaluateWorkflow(code, impu, filt,feat,model):
     print("working on imputer method---------"+impu.__name__)
     print("working on filter method---------"+filt.__name__)
     print("working on feature method---------"+feat.__name__)
-    
-    print("working on model---------"+model._name)
+    print("working on model---------"+model.__name__)
+
     imputed_data=impu(dataset)
     filtered_data=filt(imputed_data)
     
@@ -83,7 +86,7 @@ def evaluateWorkflow(code, impu, filt,feat,model):
 
 
 
-if __name__ == '__evaluateWorkflow__':
+if __name__ == '__main__':
     # do stuff with imports and functions defined about
     
     start = time.time()
@@ -105,7 +108,7 @@ if __name__ == '__evaluateWorkflow__':
             'CART': DecisionTreeClassifier(),
             'NB': GaussianNB()}
 
-    #generate a list of the coder methods in the imputer class
+    #generate a list of the coder methods in the coder class
     coder_list=[getattr(Coder, method) for method in dir(Coder) 
                 if callable(getattr(Coder, method)) and not method.startswith("__")]
 
@@ -139,13 +142,12 @@ if __name__ == '__evaluateWorkflow__':
     product=itertools.product(coder_list,imputer_list,filter_list,feature_selector_list,model_list)
     print("created product")    
     #Collect the results of cv.
-    results=Parallel(n_jobs=int(num_cores/4))    (delayed(evaluateWorkflow)(code,impu,filt,fea,model) for code,impu,filt,fea,model in product)
 
 
 
-    #colleseum_results = pandas.DataFrame(
-    #       Parallel(n_jobs=num_cores)    (delayed(evaluateWorkflow)(code,impu,filt,fea,model) 
-    #   for code,impu,filt,fea,model in itertools.product(coder_list,imputer_list,filter_list,feature_selector_list,model_list)))
+    colleseum_results = pandas.DataFrame(
+           Parallel(n_jobs=num_cores)    (delayed(evaluateWorkflow)(code,impu,filt,fea,model) 
+       for code,impu,filt,fea,model in itertools.product(coder_list,imputer_list,filter_list,feature_selector_list,model_list)))
     
 
 
@@ -153,9 +155,9 @@ if __name__ == '__evaluateWorkflow__':
 
 
 
-    #print(accuracy_score(Y_validation, predictions))
-    #print(confusion_matrix(Y_validation, predictions))
-    #print(classification_report(Y_validation, predictions))
+    print(accuracy_score(Y_validation, predictions))
+    print(confusion_matrix(Y_validation, predictions))
+    print(classification_report(Y_validation, predictions))
 
 
 
