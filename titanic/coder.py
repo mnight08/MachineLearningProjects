@@ -16,14 +16,10 @@ class Coder:
         try:        
             if type(dataframe)!=pandas.core.frame.DataFrame:
                 raise TypeError()
-                return dataframe.dropna(axis=0,subset=['Age'])
+            else:
+                #code male and female data. Males are 0, females are 1.
+                return dataframe.replace(to_replace={'Sex':{'male':0,'female':1}},inplace=False)
         except TypeError as error:
-            print("invalid type for imputation")
+            print("invalid type for coding")
 
-
-
-    @classmethod
-    def replace_with_mean_of_pop(self,dataframe):
-        mean=dataframe['Age'].mean()
-        return dataframe.fillna(mean)
 

@@ -50,22 +50,30 @@ from feature_selector import FeatureSelector
 
 #returns a statistic that measures the cross validation results.
 def objective(results):
-    return results.mean()/(1+results.std())
+    return results.mean()#/(1+results.std())
 
 #return cv results for a given workflow
 #return list of the form 'ModName', 'Coder', 'Cleaner','ImpName','CVResults','Score'
+def evaluateWorkflow(dataset,code, impu, filt,feat,model):
+    log="working on dataset/coder/imputer/filter/featureselector/model: \n"\
+    +str(type(dataset)) \
+    +"/"+code.__name__ \
+    +"/"+impu.__name__ \
+    +"/"+filt.__name__  +"/"+feat.__name__+"/"+model[0]+"\n"
 
-def evaluateWorkflow(code, impu, filt,feat,model):
+    #print("dataset type is " +str(type(dataset)))
+    #code the data.
+    coded_data=code(dataset)
+    imputed_data=impu(coded_data)
     
-    print("working on coder method---------"+code.__name__)
-    
-    print("working on imputer method---------"+impu.__name__)
-    print("working on filter method---------"+filt.__name__)
-    print("working on feature method---------"+feat.__name__)
-    print("working on model---------"+model.__name__)
-
-    imputed_data=impu(dataset)
     filtered_data=filt(imputed_data)
+
+
+    
+    
+
+    
+    log=log+"selected features are :" +str(feat(filtered_data))
     
     #slice the relevant features
     X_train=filtered_data[feat(filtered_data)]
@@ -73,11 +81,22 @@ def evaluateWorkflow(code, impu, filt,feat,model):
     #validation data
     Y_train=filtered_data['Survived']
 
+    seed=7
+
+    #cross validation setup.
+    kfold = model_selection.KFold(n_splits=10, random_state=seed)
+    scoring='accuracy'
+
+
+
+
     kfold.random_state=seed          
 
-    cv_results=model_selection.cross_val_score(model, X_train,Y_train, cv=kfold, scoring=scoring)
+
+    cv_results=model_selection.cross_val_score(model[1], X_train,Y_train, cv=kfold, scoring=scoring)
     objective_score=objective(cv_results)
-    print(objective_score)
+    log=log+"objective score is " +str(objective_score)
+    print(log)
     return [code,impu,filt,feat,model,objective_score]
 
 
@@ -127,27 +146,10 @@ if __name__ == '__main__':
 
     print("loaded Data")
 
-      
-      
-
-    seed=7
-
-    #cross validation setup.
-    kfold = model_selection.KFold(n_splits=10, random_state=seed)
-    scoring='accuracy'
-
-
-
-
-    product=itertools.product(coder_list,imputer_list,filter_list,feature_selector_list,model_list)
-    print("created product")    
-    #Collect the results of cv.
-
-
 
     colleseum_results = pandas.DataFrame(
-           Parallel(n_jobs=num_cores)    (delayed(evaluateWorkflow)(code,impu,filt,fea,model) 
-       for code,impu,filt,fea,model in itertools.product(coder_list,imputer_list,filter_list,feature_selector_list,model_list)))
+           Parallel(n_jobs=num_cores,backend="threading")    (delayed(evaluateWorkflow)(dataset,code,impu,filt,fea,model) 
+       for code,impu,filt,fea,model in itertools.product(coder_list,imputer_list,filter_list,feature_selector_list,model_list.items())))
     
 
 
@@ -155,9 +157,9 @@ if __name__ == '__main__':
 
 
 
-    print(accuracy_score(Y_validation, predictions))
-    print(confusion_matrix(Y_validation, predictions))
-    print(classification_report(Y_validation, predictions))
+#    print(accuracy_score(Y_validation, predictions))
+#    print(confusion_matrix(Y_validation, predictions))
+#    print(classification_report(Y_validation, predictions))
 
 
 

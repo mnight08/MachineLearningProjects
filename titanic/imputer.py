@@ -20,9 +20,7 @@ class Imputer:
             if type(dataframe)!=pandas.core.frame.DataFrame:
                 raise TypeError()
             else:
-                #code male and female data. Males are 0, females are 1.
-                return dataframe.replace(to_replace={'Sex':{'male':0,'female':1}},inplace=True)
-
+                return dataframe.dropna(axis=0,subset=['Age'])
         except TypeError as error:
-            print("invalid type for imputation")
+            print("In imputer, the type is " +str(type(dataframe))+"invalid type for imputation")
 

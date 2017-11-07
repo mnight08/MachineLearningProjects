@@ -27,6 +27,6 @@ class Filterer:
             else:
                 return dataframe
         except TypeError as error:
-            print("invalid type for imputation")
+            print("invalid type for filtering")
 
 
