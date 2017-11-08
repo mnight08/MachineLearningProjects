@@ -15,7 +15,7 @@ import pandas
 class Imputer:
     #replace male with 0 and female with 1.
     @classmethod
-    def naive(self, dataframe):
+    def dropna(self, dataframe):
         try:        
             if type(dataframe)!=pandas.core.frame.DataFrame:
                 raise TypeError()
