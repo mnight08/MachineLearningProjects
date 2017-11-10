@@ -97,7 +97,7 @@ def evaluateWorkflow(dataset,code, impu, filt,feat,model):
     objective_score=objective(cv_results)
     log=log+"objective score is " +str(objective_score)
     print(log)
-    return [code,impu,filt,feat,model,objective_score]
+    return [code,impu,filt,feat,model[0],model[1],objective_score]
 
 
         
@@ -140,6 +140,7 @@ if __name__ == '__main__':
 
     #Load data into data fram.
     filename="train.csv"
+    
     #column names are auto filled. Columns are  ['PassengerId',	'Survived',	'Pclass',	'Name',	'Sex',	
     #        'Age',	'SibSp',	'Parch',	'Ticket',	'Fare',	'Cabin',	'Embarked']
     dataset = pandas.read_csv(filename)

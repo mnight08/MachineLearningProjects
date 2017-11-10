@@ -22,4 +22,3 @@ class Coder:
         except TypeError as error:
             print("invalid type for coding")
 
-
