@@ -12,7 +12,7 @@ import pandas
 
 class Coder:
     @classmethod
-    def naive(self, dataframe):
+    def gender(self, dataframe):
         try:        
             if type(dataframe)!=pandas.core.frame.DataFrame:
                 raise TypeError()

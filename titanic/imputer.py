@@ -15,7 +15,7 @@ import pandas
 class Imputer:
     #fill in data with 
     @classmethod
-    def naive(self, dataframe):
+    def dropna(self, dataframe):
         try:        
             if type(dataframe)!=pandas.core.frame.DataFrame:
                 raise TypeError()
