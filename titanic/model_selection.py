@@ -8,9 +8,9 @@ Perform cross validation using several out of the box models and imputation meth
 Creates a data frame with columns 'ModName', 'Coder', 'Cleaner','ImpName','CVResults','Score'
 
 must specify imputer, coder, feature_selector module names with imputer, coder, and feature
-selector methods 
+selector methods
 
-The workflow of model selection is 
+The workflow of model selection is
 raw data->coder->imputer->filter->feature_selector->colleseum->cv dataframe with objective score
 followed by a message indicating the tuple of methods that achieved the highest results.
 
@@ -55,8 +55,7 @@ def objective(results):
 #return cv results for a given workflow
 #return list of the form 'ModName', 'Coder', 'Cleaner','ImpName','CVResults','Score'
 def evaluateWorkflow(dataset,code, impu, filt,feat,model):
-    log="working on dataset/coder/imputer/filter/featureselector/model: \n"\
-    +str(type(dataset)) \
+    log="working on :" \
     +"/"+code.__name__ \
     +"/"+impu.__name__ \
     +"/"+filt.__name__  +"/"+feat.__name__+"/"+model[0]+"\n"
@@ -65,19 +64,19 @@ def evaluateWorkflow(dataset,code, impu, filt,feat,model):
     #code the data.
     coded_data=code(dataset)
     imputed_data=impu(coded_data)
-    
+
     filtered_data=filt(imputed_data)
 
 
-    
-    
 
-    
-    log=log+"selected features are :" +str(feat(filtered_data))
-    
+
+
+
+    #log=log+"selected features are :" +str(feat(filtered_data))
+
     #slice the relevant features
     X_train=filtered_data[feat(filtered_data)]
-    
+
     #validation data
     Y_train=filtered_data['Survived']
 
@@ -90,35 +89,39 @@ def evaluateWorkflow(dataset,code, impu, filt,feat,model):
 
 
 
-    kfold.random_state=seed          
+    kfold.random_state=seed
 
 
-    cv_results=model_selection.cross_val_score(model[1], X_train,Y_train, cv=kfold, scoring=scoring)
-    objective_score=objective(cv_results)
-    log=log+"objective score is " +str(objective_score)
-    print(log)
-    return [code,impu,filt,feat,model[0],model[1],objective_score]
+    try:
+
+        cv_results=model_selection.cross_val_score(model[1], X_train,Y_train, cv=kfold, scoring=scoring)
+        objective_score=objective(cv_results)#log=log+"objective score is " +str(objective_score)
+        print(log)
+        return [code,impu,filt,feat,model[0],model[1],objective_score]
+    except ValueError as error:
+        print(log+"cross validation failed.")
+        return []
 
 
-        
+
 
 
 
 
 if __name__ == '__main__':
     # do stuff with imports and functions defined about
-    
+
     start = time.time()
 
     print(start)
     num_cores = multiprocessing.cpu_count()
-
+    #coder/imputer/filter/featureselector/model:
     # what are your inputs, and what operation do you want to
     # perform on each input.
     #generate a list of the coder methods in the imputer class
-    
+
     #generate a list of the imputation methods in the imputer class
-    imputer_list = [getattr(Imputer, method) for method in dir(Imputer) 
+    imputer_list = [getattr(Imputer, method) for method in dir(Imputer)
                     if callable(getattr(Imputer, method)) and not method.startswith("__")]
     model_list={'SVM': SVC(),
             'LR': LogisticRegression(),
@@ -128,7 +131,7 @@ if __name__ == '__main__':
             'NB': GaussianNB()}
 
     #generate a list of the coder methods in the coder class
-    coder_list=[getattr(Coder, method) for method in dir(Coder) 
+    coder_list=[getattr(Coder, method) for method in dir(Coder)
                 if callable(getattr(Coder, method)) and not method.startswith("__")]
 
 
@@ -140,8 +143,8 @@ if __name__ == '__main__':
 
     #Load data into data fram.
     filename="train.csv"
-    
-    #column names are auto filled. Columns are  ['PassengerId',	'Survived',	'Pclass',	'Name',	'Sex',	
+
+    #column names are auto filled. Columns are  ['PassengerId',	'Survived',	'Pclass',	'Name',	'Sex',
     #        'Age',	'SibSp',	'Parch',	'Ticket',	'Fare',	'Cabin',	'Embarked']
     dataset = pandas.read_csv(filename)
 
@@ -149,12 +152,12 @@ if __name__ == '__main__':
 
 
     colleseum_results = pandas.DataFrame(
-           Parallel(n_jobs=num_cores,backend="threading")    (delayed(evaluateWorkflow)(dataset,code,impu,filt,fea,model) 
+           Parallel(n_jobs=num_cores,backend="threading")    (delayed(evaluateWorkflow)(dataset,code,impu,filt,fea,model)
        for code,impu,filt,fea,model in itertools.product(coder_list,imputer_list,filter_list,feature_selector_list,model_list.items())))
-    
 
 
-  
+
+
 
 
 
