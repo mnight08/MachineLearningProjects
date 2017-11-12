@@ -55,22 +55,28 @@ class Imputer:
     #use regression to find the misssing values for age
     #based on
     @classmethod
-    def replace_regression_age(self, dataframe):
+    def generalized_linear_regression_age(self, dataframe):
         try:
             if type(dataframe)!=pandas.core.frame.DataFrame:
                 raise TypeError()
             else:
-               regression_data_X=dataframe[['Pclass',    'Sex',        'SibSp',    'Parch',    'Fare']]
-               regression_data_Y=dataframe[['Age']]
+
+               #remove na to build regression model
+               reduced_dataframe=dataframe.dropna(axis=0,subset=['Age'])
+               regression_data_X=reduced_dataframe[['Pclass',    'Sex',        'SibSp',    'Parch',    'Fare']]
+               regression_data_Y=reduced_dataframe[['Age']]
 
 
                clf = linear_model.LinearRegression()
                clf.fit(regression_data_X,regression_data_Y)
+
+               #Initialize the datframe to hold the final imputed data.
                imputed_data=pandas.DataFrame(dataframe)
 
                #slice out the null values for age and set them equal to the predicted value.
-               imputed_data[dataset['Age'].isnull()]['Age']\
-               =clf.predict(dataset[['Pclass',    'Sex',        'SibSp',    'Parch',    'Fare']])
+               mask=dataframe['Age'].isnull()
+               imputed_data.loc[mask,'Age']\
+               =clf.predict(dataframe[mask][['Pclass',    'Sex',        'SibSp',    'Parch',    'Fare']])
 
 
                return imputed_data
@@ -78,3 +84,267 @@ class Imputer:
             print("In imputer, the type is " +str(type(dataframe))+"invalid type for imputation")
 
 
+
+   #TODO: complete this regression method
+    #use regression to find the misssing values for age
+    #based on
+    @classmethod
+    def ridge_regression_age(self, dataframe):
+        try:
+            if type(dataframe)!=pandas.core.frame.DataFrame:
+                raise TypeError()
+            else:
+
+               #remove na to build regression model
+               reduced_dataframe=dataframe.dropna(axis=0,subset=['Age'])
+               regression_data_X=reduced_dataframe[['Pclass',    'Sex',        'SibSp',    'Parch',    'Fare']]
+               regression_data_Y=reduced_dataframe[['Age']]
+
+
+               clf = linear_model.Ridge()
+               clf.fit(regression_data_X,regression_data_Y)
+
+               #Initialize the datframe to hold the final imputed data.
+               imputed_data=pandas.DataFrame(dataframe)
+
+               #slice out the null values for age and set them equal to the predicted value.
+               mask=dataframe['Age'].isnull()
+               imputed_data.loc[mask,'Age']\
+               =clf.predict(dataframe[mask][['Pclass',    'Sex',        'SibSp',    'Parch',    'Fare']])
+
+
+               return imputed_data
+        except TypeError as error:
+            print("In imputer, the type is " +str(type(dataframe))+"invalid type for imputation")
+
+
+
+
+   #TODO: complete this regression method
+    #use regression to find the misssing values for age
+    #based on
+    @classmethod
+    def lasso_regression_age(self, dataframe):
+        try:
+            if type(dataframe)!=pandas.core.frame.DataFrame:
+                raise TypeError()
+            else:
+
+               #remove na to build regression model
+               reduced_dataframe=dataframe.dropna(axis=0,subset=['Age'])
+               regression_data_X=reduced_dataframe[['Pclass',    'Sex',        'SibSp',    'Parch',    'Fare']]
+               regression_data_Y=reduced_dataframe[['Age']]
+
+
+               clf = linear_model.Lasso()
+               clf.fit(regression_data_X,regression_data_Y)
+
+               #Initialize the datframe to hold the final imputed data.
+               imputed_data=pandas.DataFrame(dataframe)
+
+               #slice out the null values for age and set them equal to the predicted value.
+               mask=dataframe['Age'].isnull()
+               imputed_data.loc[mask,'Age']\
+               =clf.predict(dataframe[mask][['Pclass',    'Sex',        'SibSp',    'Parch',    'Fare']])
+
+
+               return imputed_data
+        except TypeError as error:
+            print("In imputer, the type is " +str(type(dataframe))+"invalid type for imputation")
+
+
+#TODO: complete this regression method
+    #use regression to find the misssing values for age
+    #based on
+    @classmethod
+    def elastic_net_regression_age(self, dataframe):
+        try:
+            if type(dataframe)!=pandas.core.frame.DataFrame:
+                raise TypeError()
+            else:
+
+               #remove na to build regression model
+               reduced_dataframe=dataframe.dropna(axis=0,subset=['Age'])
+               regression_data_X=reduced_dataframe[['Pclass',    'Sex',        'SibSp',    'Parch',    'Fare']]
+               regression_data_Y=reduced_dataframe[['Age']]
+
+
+               clf = linear_model.ElasticNet()
+               clf.fit(regression_data_X,regression_data_Y)
+
+               #Initialize the datframe to hold the final imputed data.
+               imputed_data=pandas.DataFrame(dataframe)
+
+               #slice out the null values for age and set them equal to the predicted value.
+               mask=dataframe['Age'].isnull()
+               imputed_data.loc[mask,'Age']\
+               =clf.predict(dataframe[mask][['Pclass',    'Sex',        'SibSp',    'Parch',    'Fare']])
+
+
+               return imputed_data
+        except TypeError as error:
+            print("In imputer, the type is " +str(type(dataframe))+"invalid type for imputation")
+
+
+#TODO: complete this regression method
+    #use regression to find the misssing values for age
+    #based on
+    @classmethod
+    def OMP_regression_age(self, dataframe):
+        try:
+            if type(dataframe)!=pandas.core.frame.DataFrame:
+                raise TypeError()
+            else:
+
+               #remove na to build regression model
+               reduced_dataframe=dataframe.dropna(axis=0,subset=['Age'])
+               regression_data_X=reduced_dataframe[['Pclass',    'Sex',        'SibSp',    'Parch',    'Fare']]
+               regression_data_Y=reduced_dataframe[['Age']]
+
+
+               clf = linear_model.OrthogonalMatchingPursuit()
+               clf.fit(regression_data_X,regression_data_Y)
+
+               #Initialize the datframe to hold the final imputed data.
+               imputed_data=pandas.DataFrame(dataframe)
+
+               #slice out the null values for age and set them equal to the predicted value.
+               mask=dataframe['Age'].isnull()
+               imputed_data.loc[mask,'Age']\
+               =clf.predict(dataframe[mask][['Pclass',    'Sex',        'SibSp',    'Parch',    'Fare']])
+
+
+               return imputed_data
+        except TypeError as error:
+            print("In imputer, the type is " +str(type(dataframe))+"invalid type for imputation")
+
+
+            #TODO: complete this regression method
+    #use regression to find the misssing values for age
+    #based on
+    @classmethod
+    def bayseian_ridge_regression_age(self, dataframe):
+        try:
+            if type(dataframe)!=pandas.core.frame.DataFrame:
+                raise TypeError()
+            else:
+
+               #remove na to build regression model
+               reduced_dataframe=dataframe.dropna(axis=0,subset=['Age'])
+               regression_data_X=reduced_dataframe[['Pclass',    'Sex',        'SibSp',    'Parch',    'Fare']]
+               regression_data_Y=reduced_dataframe[['Age']]
+
+
+               clf = linear_model.BayesianRidge()
+               clf.fit(regression_data_X,regression_data_Y)
+
+               #Initialize the datframe to hold the final imputed data.
+               imputed_data=pandas.DataFrame(dataframe)
+
+               #slice out the null values for age and set them equal to the predicted value.
+               mask=dataframe['Age'].isnull()
+               imputed_data.loc[mask,'Age']\
+               =clf.predict(dataframe[mask][['Pclass',    'Sex',        'SibSp',    'Parch',    'Fare']])
+
+
+               return imputed_data
+        except TypeError as error:
+            print("In imputer, the type is " +str(type(dataframe))+"invalid type for imputation")
+
+
+    #TODO: complete this regression method
+    #use regression to find the misssing values for age
+    #based on
+    @classmethod
+    def ARD_regression_age(self, dataframe):
+        try:
+            if type(dataframe)!=pandas.core.frame.DataFrame:
+                raise TypeError()
+            else:
+
+               #remove na to build regression model
+               reduced_dataframe=dataframe.dropna(axis=0,subset=['Age'])
+               regression_data_X=reduced_dataframe[['Pclass',    'Sex',        'SibSp',    'Parch',    'Fare']]
+               regression_data_Y=reduced_dataframe[['Age']]
+
+
+               clf = linear_model.ARDRegression()
+               clf.fit(regression_data_X,regression_data_Y)
+
+               #Initialize the datframe to hold the final imputed data.
+               imputed_data=pandas.DataFrame(dataframe)
+
+               #slice out the null values for age and set them equal to the predicted value.
+               mask=dataframe['Age'].isnull()
+               imputed_data.loc[mask,'Age']\
+               =clf.predict(dataframe[mask][['Pclass',    'Sex',        'SibSp',    'Parch',    'Fare']])
+
+
+               return imputed_data
+        except TypeError as error:
+            print("In imputer, the type is " +str(type(dataframe))+"invalid type for imputation")
+
+
+    #TODO: complete this regression method
+    #use regression to find the misssing values for age
+    #based on
+    @classmethod
+    def SGD_regression_age(self, dataframe):
+        try:
+            if type(dataframe)!=pandas.core.frame.DataFrame:
+                raise TypeError()
+            else:
+
+               #remove na to build regression model
+               reduced_dataframe=dataframe.dropna(axis=0,subset=['Age'])
+               regression_data_X=reduced_dataframe[['Pclass',    'Sex',        'SibSp',    'Parch',    'Fare']]
+               regression_data_Y=reduced_dataframe[['Age']]
+
+
+               clf = linear_model.SGDRegressor()
+               clf.fit(regression_data_X,regression_data_Y)
+
+               #Initialize the datframe to hold the final imputed data.
+               imputed_data=pandas.DataFrame(dataframe)
+
+               #slice out the null values for age and set them equal to the predicted value.
+               mask=dataframe['Age'].isnull()
+               imputed_data.loc[mask,'Age']\
+               =clf.predict(dataframe[mask][['Pclass',    'Sex',        'SibSp',    'Parch',    'Fare']])
+
+
+               return imputed_data
+        except TypeError as error:
+            print("In imputer, the type is " +str(type(dataframe))+"invalid type for imputation")
+
+  #TODO: complete this regression method
+    #use regression to find the misssing values for age
+    #based on
+    @classmethod
+    def THS_regression_age(self, dataframe):
+        try:
+            if type(dataframe)!=pandas.core.frame.DataFrame:
+                raise TypeError()
+            else:
+
+               #remove na to build regression model
+               reduced_dataframe=dataframe.dropna(axis=0,subset=['Age'])
+               regression_data_X=reduced_dataframe[['Pclass',    'Sex',        'SibSp',    'Parch',    'Fare']]
+               regression_data_Y=reduced_dataframe[['Age']]
+
+
+               clf = linear_model.TheilSenRegressor()
+               clf.fit(regression_data_X,regression_data_Y)
+
+               #Initialize the datframe to hold the final imputed data.
+               imputed_data=pandas.DataFrame(dataframe)
+
+               #slice out the null values for age and set them equal to the predicted value.
+               mask=dataframe['Age'].isnull()
+               imputed_data.loc[mask,'Age']\
+               =clf.predict(dataframe[mask][['Pclass',    'Sex',        'SibSp',    'Parch',    'Fare']])
+
+
+               return imputed_data
+        except TypeError as error:
+            print("In imputer, the type is " +str(type(dataframe))+"invalid type for imputation")
