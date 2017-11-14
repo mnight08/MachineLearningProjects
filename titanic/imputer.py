@@ -18,7 +18,11 @@ class Imputer:
     #fill in data with
     @classmethod
     def dropna(self, dataframe):
+<<<<<<< HEAD
         try:
+=======
+        try:
+>>>>>>> 098c51075695866596d3313b3f17a6b827d0c4b5
             if type(dataframe)!=pandas.core.frame.DataFrame:
                 raise TypeError()
             else:
@@ -289,7 +293,7 @@ class Imputer:
     #use regression to find the misssing values for age
     #based on
     @classmethod
-    def SGD_regression_age(self, dataframe):
+    def sgd_regression_age(self, dataframe):
         try:
             if type(dataframe)!=pandas.core.frame.DataFrame:
                 raise TypeError()
@@ -317,11 +321,45 @@ class Imputer:
         except TypeError as error:
             print("In imputer, the type is " +str(type(dataframe))+"invalid type for imputation")
 
+#TODO: complete this regression method
+    #use regression to find the misssing values for age
+    #based on
+    @classmethod
+    def ransac_regression_age(self, dataframe):
+        try:
+            if type(dataframe)!=pandas.core.frame.DataFrame:
+                raise TypeError()
+            else:
+
+               #remove na to build regression model
+               reduced_dataframe=dataframe.dropna(axis=0,subset=['Age'])
+               regression_data_X=reduced_dataframe[['Pclass',    'Sex',        'SibSp',    'Parch',    'Fare']]
+               regression_data_Y=reduced_dataframe[['Age']]
+
+
+               clf = linear_model.RANSACRegressor()
+               clf.fit(regression_data_X,regression_data_Y)
+
+               #Initialize the datframe to hold the final imputed data.
+               imputed_data=pandas.DataFrame(dataframe)
+
+               #slice out the null values for age and set them equal to the predicted value.
+               mask=dataframe['Age'].isnull()
+               imputed_data.loc[mask,'Age']\
+               =clf.predict(dataframe[mask][['Pclass',    'Sex',        'SibSp',    'Parch',    'Fare']])
+
+
+               return imputed_data
+        except TypeError as error:
+            print("In imputer, the type is " +str(type(dataframe))+"invalid type for imputation")
+
+
+
   #TODO: complete this regression method
     #use regression to find the misssing values for age
     #based on
     @classmethod
-    def THS_regression_age(self, dataframe):
+    def ths_regression_age(self, dataframe):
         try:
             if type(dataframe)!=pandas.core.frame.DataFrame:
                 raise TypeError()
