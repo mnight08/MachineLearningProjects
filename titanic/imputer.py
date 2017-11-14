@@ -18,11 +18,7 @@ class Imputer:
     #fill in data with
     @classmethod
     def dropna(self, dataframe):
-<<<<<<< HEAD
         try:
-=======
-        try:
->>>>>>> 098c51075695866596d3313b3f17a6b827d0c4b5
             if type(dataframe)!=pandas.core.frame.DataFrame:
                 raise TypeError()
             else:
