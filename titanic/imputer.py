@@ -21,6 +21,7 @@ class Imputer:
 
         try:
 
+
             if type(dataframe)!=pandas.core.frame.DataFrame:
                 raise TypeError()
             else:
