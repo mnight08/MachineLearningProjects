@@ -6,7 +6,7 @@ Created on Fri Nov  3 13:22:30 2017
 Remove the rows in the training data that have missing age.
 Not really imputaion.
 Should function like below.
-imputed_date=imputer_naive(dataset)
+imputed_date=imputer_naive(dataframe)
 @author: vpx365
 """
 

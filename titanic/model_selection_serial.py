@@ -40,25 +40,25 @@ def objective(results):
 
 #return cv results for a given workflow
 #return list of the form 'ModName', 'Coder', 'Cleaner','ImpName','CVResults','Score'
-def evaluateWorkflow(dataset,code, impu, filt,feat,model):
-    log="working on dataset/coder/imputer/filter/featureselector/model: \n"\
-    +str(type(dataset)) \
+def evaluateWorkflow(dataframe,code, impu, filt,feat,model):
+    log="working on dataframe/coder/imputer/filter/featureselector/model: \n"\
+    +str(type(dataframe)) \
     +"/"+code.__name__ \
     +"/"+impu.__name__ \
     +"/"+filt.__name__  +"/"+feat.__name__+"/"+model[0]+"\n"
 
-    #print("dataset type is " +str(type(dataset)))
+    #print("dataframe type is " +str(type(dataframe)))
     #code the data.
-    coded_data=code(dataset)
+    coded_data=code(dataframe)
     imputed_data=impu(coded_data)
-    
+
     filtered_data=filt(imputed_data)
-   
+
     log=log+"selected features are :" +str(feat(filtered_data))
-    
+
     #slice the relevant features
     X_train=filtered_data[feat(filtered_data)]
-    
+
     #validation data
     Y_train=filtered_data['Survived']
 
@@ -71,7 +71,7 @@ def evaluateWorkflow(dataset,code, impu, filt,feat,model):
 
 
 
-    kfold.random_state=seed          
+    kfold.random_state=seed
 
 
     cv_results=model_selection.cross_val_score(model[1], X_train,Y_train, cv=kfold, scoring=scoring)
@@ -91,7 +91,7 @@ start = time.time()
 #generate a list of the coder methods in the imputer class
 
 #generate a list of the imputation methods in the imputer class
-imputer_list = [getattr(Imputer, method) for method in dir(Imputer) 
+imputer_list = [getattr(Imputer, method) for method in dir(Imputer)
                 if callable(getattr(Imputer, method)) and not method.startswith("__")]
 model_list={'SVM': SVC(),
         'LR': LogisticRegression(),
@@ -101,7 +101,7 @@ model_list={'SVM': SVC(),
         'NB': GaussianNB()}
 
 #generate a list of the coder methods in the coder class
-coder_list=[getattr(Coder, method) for method in dir(Coder) 
+coder_list=[getattr(Coder, method) for method in dir(Coder)
             if callable(getattr(Coder, method)) and not method.startswith("__")]
 
 
@@ -113,20 +113,20 @@ print("Generated Lists")
 
 #Load data into data fram.
 filename="train.csv"
-#column names are auto filled. Columns are  ['PassengerId',	'Survived',	'Pclass',	'Name',	'Sex',	
+#column names are auto filled. Columns are  ['PassengerId',	'Survived',	'Pclass',	'Name',	'Sex',
 #        'Age',	'SibSp',	'Parch',	'Ticket',	'Fare',	'Cabin',	'Embarked']
-dataset = pandas.read_csv(filename)
+dataframe = pandas.read_csv(filename)
 
 print("loaded Data")
 
 
 colleseum_results = []
 for code,impu,filt,fea,model in itertools.product(coder_list,imputer_list,filter_list,feature_selector_list,model_list.items()):
-    colleseum_results.append(evaluateWorkflow(dataset,code,impu,filt,fea,model))
+    colleseum_results.append(evaluateWorkflow(dataframe,code,impu,filt,fea,model))
 
 colleseum_results=pandas.DataFrame(colleseum_results)
 
-  
+
 
 
 

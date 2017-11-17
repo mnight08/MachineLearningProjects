@@ -4,7 +4,7 @@
 Created on Fri Nov  3 13:22:30 2017
 Replace qualitative quantities by numerical ones so they can be used in modeling.
 
-coded_data=coder_naive(dataset)
+coded_data=coder_naive(dataframe)
 @author: vpx365
 """
 
@@ -13,7 +13,7 @@ import pandas
 class Coder:
     @classmethod
     def gender(self, dataframe):
-        try:        
+        try:
             if type(dataframe)!=pandas.core.frame.DataFrame:
                 raise TypeError()
             else:

@@ -35,36 +35,48 @@ seed=7
 filename="train.csv"
 #column names are auto filled. Columns are  ['PassengerId',	'Survived',	'Pclass',	'Name',	'Sex',
 #        'Age',	'SibSp',	'Parch',	'Ticket',	'Fare',	'Cabin',	'Embarked']
-dataset = pandas.read_csv(filename)
+dataframe = pandas.read_csv(filename)
 
 
 #Numerical summary of the data.  Some ages are missing.  Need to decide how to fill in.
-print(dataset.describe())
+print(dataframe.describe())
 
 #get histogram for the quantitative variables
-dataset[['Age','Fare','Parch','Pclass','SibSp']].hist()
+dataframe[['Age','Fare','Parch','Pclass','SibSp']].hist()
 
 #
-scatter_matrix(dataset[['Age','Fare','Parch','Pclass','SibSp']], alpha=0.2, figsize=(5, 5), diagonal='kde')
+scatter_matrix(dataframe[['Age','Fare','Parch','Pclass','SibSp']], alpha=0.2, figsize=(5, 5), diagonal='kde')
+
+print(dataframe.corr())
+
+#group survivors and non survivors.
+
+survivors=dataframe[dataframe['Survived']==1][['Age','Fare','Parch','Pclass','SibSp']]
+survivors.hist()
+scatter_matrix(survivors, alpha=0.2, figsize=(5, 5), diagonal='kde')
+print(survivors.corr())
+
+non_survivors=dataframe[dataframe['Survived']==0][['Age','Fare','Parch','Pclass','SibSp']]
+non_survivors.hist()
+scatter_matrix(non_survivors, alpha=0.2, figsize=(5, 5), diagonal='kde')
+print(non_survivors.corr())
 
 
-#Analyze relationship between survival and other variables
-grouped_survivors=dataset.groupby('Survived');
 
 #Show box plot comparing the two groups
-grouped_survivors['Age','Fare','Parch','Pclass','SibSp'].boxplot(layout=[2,1])
+#grouped_survivors['Age','Fare','Parch','Pclass','SibSp'].boxplot(layout=[2,1])
 
 
-grouped_survivors['Age','Fare','Parch','Pclass','SibSp'].hist()
+#grouped_survivors['Age','Fare','Parch','Pclass','SibSp'].hist()
 
 
 #Return Series with number of non-NA/null observations over requested axis
-print(grouped_survivors.count())
+#print(grouped_survivors.count())
 
 
-grouped_sex=dataset.groupby('Sex');
+#grouped_sex=dataframe.groupby('Sex');
 
-print(grouped_sex.count())
+#print(grouped_sex.count())
 
 
 
