@@ -28,6 +28,12 @@ import plotly.graph_objs as go
 import plotly.tools as tls
 
 from IPython import get_ipython
+
+import timeit
+
+
+start = timeit.default_timer()
+
 get_ipython().run_line_magic('matplotlib', 'inline')
 train_audio_path = 'C:/Users/vpx365/Documents/Learning_Data/tensor-flow-word-recognition/train/audio/'
 filename = 'yes/0a7c2a8d_nohash_0.wav'
@@ -226,3 +232,50 @@ def violinplot_frequency(dirs, freq_ind):
     plt.title('Frequency ' + str(freqs[freq_ind]) + ' Hz')
     sns.violinplot(data=pd.DataFrame(spec_all.T, columns=dirs))
     plt.show()
+    
+    
+violinplot_frequency(dirs, 20)
+violinplot_frequency(dirs, 50)
+
+#anomoly detection
+fft_all = []
+names = []
+for direct in dirs:
+    waves = [f for f in os.listdir(join(train_audio_path, direct)) if f.endswith('.wav')]
+    for wav in waves:
+        sample_rate, samples = wavfile.read(train_audio_path + direct + '/' + wav)
+        if samples.shape[0] != sample_rate:
+            samples = np.append(samples, np.zeros((sample_rate - samples.shape[0], )))
+        x, val = custom_fft(samples, sample_rate)
+        fft_all.append(val)
+        names.append(direct + '/' + wav)
+
+fft_all = np.array(fft_all)
+
+# Normalization
+fft_all = (fft_all - np.mean(fft_all, axis=0)) / np.std(fft_all, axis=0)
+
+# Dim reduction
+pca = PCA(n_components=3)
+fft_all = pca.fit_transform(fft_all)
+
+def interactive_3d_plot(data, names):
+    scatt = go.Scatter3d(x=data[:, 0], y=data[:, 1], z=data[:, 2], mode='markers', text=names)
+    data = go.Data([scatt])
+    layout = go.Layout(title="Anomaly detection")
+    figure = go.Figure(data=data, layout=layout)
+    py.iplot(figure)
+    
+interactive_3d_plot(fft_all, names)
+
+
+
+
+stop = timeit.default_timer()
+total_time = stop - start
+
+# output running time in a nice format.
+mins, secs = divmod(total_time, 60)
+hours, mins = divmod(mins, 60)
+
+print("Total running time: %d:%d:%d.\n"  % (hours, mins, secs))
