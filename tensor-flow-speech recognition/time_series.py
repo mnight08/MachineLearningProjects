@@ -12,6 +12,7 @@ import pandas as pd
 
 # Math
 import numpy as np
+import math
 from scipy.fftpack import fft
 from scipy import signal
 from scipy.io import wavfile
@@ -30,6 +31,8 @@ import plotly.tools as tls
 
 import re
 
+#voice activity detection
+import webrtcvad
 
 from IPython import get_ipython
 get_ipython().run_line_magic('matplotlib', 'inline')
@@ -37,6 +40,32 @@ train_audio_path = 'C:/Users/vpx365/Documents/Learning_Data/tensor-flow-word-rec
 
 
 words = ['yes']#[f for f in os.listdir(train_audio_path) if isdir(join(train_audio_path, f))]
+
+
+'''find the longest list in a data dictionary and pad all the signals with zeros.  Two modes are available.  fft' mode pads to the next power of 2.
+'''
+def zero_pad(data, mode='fft'):
+      padded_data=data
+      max_length=0;
+      for key in data.keys():
+            max_length=max(len(data[key]),max_length)
+
+      if mode =='fft':
+            new_length=int(math.pow(2,math.ceil(math.log2(max_length))))
+
+      for key in data.keys():
+            zeros_to_append=np.zeros(new_length-len(data[key]),dtype=int)
+
+            padded_data[key]=np.concatenate((padded_data[key],zeros_to_append))
+      return padded_data
+
+
+
+
+'''Takes  adata frame whose rows are sampled audio recordings, detects the voice content of each recording then moves the recordings so that the first sample of each signal is the start of voice content. Sample rate must be 8000, 16000, 32000, or 48000 '''
+def align_voice_content(dataframe,aggressiveness=1):
+
+      vad = webrtcvad.Vad(aggressiveness)
 
 
 def load_data(words):
