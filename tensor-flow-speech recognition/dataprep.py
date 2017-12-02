@@ -67,12 +67,30 @@ def align_voice_content(dataframe,aggressiveness=1):
 
       vad = webrtcvad.Vad(aggressiveness)
 
+'''returns a list of spekers that stated each word.'''
+def get_speakers(words):
+      pass
 
-def load_data(words):
-      dirs=[f for f in os.listdir(train_audio_path) if isdir(join(train_audio_path, f)) and f in words]
+'''returns the label for the speaker who uttered the word.'''
+def get_speaker_from_file_name(filename):
+      pass
+
+'''returns a data frame containing sampled audio for the words in "words" spoken by speakers in "speakers" Each row is a recording.  Currently requires that the sample rates all be the same.
+Columns are:
+      word speaker sample_rate sample_1 sample_2 ....
+
+      data frames require that all rows be the same length.
+'''
+def load_data(words, speakers=[]):
+
+      #A list of directories that contain the words spoken by given speakers
+      dirs=[folder for folder in os.listdir(train_audio_path)
+      if isdir(join(train_audio_path, folder)) and f in words]
 
       data={}
-      speakers=[]
+      if speakers==[]:
+            speakers=get_speakers(words)
+
       #load all of the training data into a single dataframe
       for d in dirs:
             print(d)
