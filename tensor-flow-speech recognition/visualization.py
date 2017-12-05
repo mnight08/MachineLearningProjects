@@ -31,24 +31,20 @@ from IPython import get_ipython
 
 import timeit
 
+
 class Visulalize:
-      train_audio_path = 'C:/Users/vpx365/Documents/Learning_Data/tensor-flow-word-recognition/train/audio/'
 
+    train_audio_path = 'C:/Users/vpx365/Documents/Learning_Data/ \
+                        tensor-flow-word-recognition/train/audio/'
 
-
-      #start = timeit.default_timer()
-
-      #generate log_specgram for given audio recording with given window.
-      def log_specgram(self, audio, sample_rate, window_size=20,
-                       step_size=10, eps=1e-10):
-            nperseg = int(round(window_size * sample_rate / 1e3))
-            noverlap = int(round(step_size * sample_rate / 1e3))
-            freqs, times, spec = signal.spectrogram(audio,
-                                                    fs=sample_rate,
-                                                    window='hann',
-                                                    nperseg=nperseg,
-                                                    noverlap=noverlap,
-                                                    detrend=False)
+    '''generate log_specgram for given audio recording with given window.'''
+    def log_specgram(self, audio, sample_rate, window_size=20,
+                     step_size=10, eps=1e-10):
+        nperseg = int(round(window_size * sample_rate / 1e3))
+        noverlap = int(round(step_size * sample_rate / 1e3))
+        freqs, times, spec = signal.spectrogram(audio,fs=sample_rate,
+                                                window='hann',nperseg=nperseg,
+                                                noverlap=noverlap, detrend=False)
             return freqs, times, np.log(spec.T.astype(np.float32) + eps)
 
       #iterate through the words and count frequency. Then make a bar graph.
@@ -131,12 +127,12 @@ class Visulalize:
 
       #choose n recordings for each word in the list and compute the mean.  Then return
       #the plot of that mean.
-      def plot_mean_raw(word,n,save=False):
+      def plot_mean_raw(words,n,save=False,show=False):
             pass
 
       #Pick a sample of size n from the recordings of the given word.
       #use that set to find mean, dft.  Then generate the plot.
-      def plot_mean_dft(word, n,save=False):
+      def plot_mean_dft(words, n,save=False,show=False):
             for filename in filenames:
                 sample_rate, samples = wavfile.read(str(train_audio_path) + filename)
                    if samples.shape[0] != 16000:
@@ -159,7 +155,7 @@ class Visulalize:
 
 
 
-      def plot_mean_specgram(words,n,save=False):
+      def plot_mean_specgram(words,n,save=False,show=False):
             plt.title('Mean specgram of ' + direct)
             plt.imshow(np.mean(np.array(spec_all), axis=0).T, aspect='auto', origin='lower',
                        extent=[times.min(), times.max(), freqs.min(), freqs.max()])
@@ -167,7 +163,7 @@ class Visulalize:
             plt.xticks(times[::16])
             plt.show()
 
-      def plot_violin_frequency(dirs, freq_ind):
+      def plot_violin_frequency(dirs, freq_ind,save=False,show=False):
           """ Plot violinplots for given words (waves in dirs) and frequency freq_ind
           from all frequencies freqs."""
 
@@ -192,7 +188,8 @@ class Visulalize:
           plt.figure(figsize=(13,8))
           plt.title('Frequency ' + str(freqs[freq_ind]) + ' Hz')
           sns.violinplot(data=pd.DataFrame(spec_all.T, columns=dirs))
-          plt.show()
+          if show:
+                plt.show()
 
 
       #Returns the following figures for a given recording:
@@ -212,7 +209,7 @@ class Visulalize:
       #pick a sample of n recordings(if possible.) of the each of the given words
       #and generates the
       #figures for list of given words:
-      def visulaize_words(word=["on"],n=4, save=False,show=True)
+      def visulaize_words(word=[],n=1, save=False,show=True)
             filenames = [filename for filename in os.listdir(join(train_audio_path, direct))
                         if f.endswith('.wav') and get_word(filename)==word]
             dirs = [d for d in words if d in to_keep]
@@ -225,20 +222,6 @@ class Visulalize:
                   waves = [f for f in os.listdir(join(train_audio_path, direct)) if f.endswith('.wav')]
                   for wav in waves:
                         sample_rate, samples = wavfile.read(train_audio_path + direct + '/' + wav)
-
-
-
-      #flow a sample
-      def visualize_common_words(words=,):
-
-            sample_rate, samples = wavfile.read(str(train_audio_path) + filename)
-            freqs, times, spectrogram = log_specgram(samples, sample_rate)
-
-
-
-
-
-
 
 
       #create a histogram for the recording lenghth
@@ -296,10 +279,11 @@ class Visulalize:
             for word in words:
                   pass
       def main():
-
+            #start = timeit.default_timer()
             #filename = '/yes/01bb6a2a_nohash_1.wav'
 
 
+            visualize_recording("_yes_0a7c2a8d_nohash_0",samples,sample_rate)
 
             words='yes no up down left right on off stop go silence unknown'.split()
 
