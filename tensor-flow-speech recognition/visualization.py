@@ -51,8 +51,36 @@ class Visulalize:
                                                     detrend=False)
             return freqs, times, np.log(spec.T.astype(np.float32) + eps)
 
+      #iterate through the words and count frequency. Then make a bar graph.
+      def plotWordFrequency():
+            dirs = [f for f in os.listdir(train_audio_path) if isdir(join(train_audio_path, f))]
+            dirs.sort()
+            print('Number of labels: ' + str(len(dirs)))
+            number_of_recordings = []
+            for direct in dirs:
+                  waves = [f for f in os.listdir(join(train_audio_path, direct)) if f.endswith('.wav')]
+                  number_of_recordings.append(len(waves))
+
+                  plt.figure(figsize=(14,8))
+                  plt.bar(dirs, number_of_recordings)
+                  plt.title('Number of recordings in given label')
+                  plt.xticks(rotation='vertical')
+                  plt.ylabel('Number of recordings')
+                  plt.xlabel('Words')
+                  plt.show()
+
+
+      def custom_fft(y, fs):
+          T = 1.0 / fs
+          N = y.shape[0]
+          yf = fft(y)
+          xf = np.linspace(0.0, 1.0/(2.0*T), N//2)
+          vals = 2.0/N * np.abs(yf[0:N//2])
+          return xf, vals
+
+
       #plots the raw audio recording that it is given
-      def plot_raw(filename,samples,sample_rate):
+      def plot_raw(recording, path,samples,sample_rate,save=False, show=False):
             raw_fig = plt.figure(figsize=(14, 8))
             ax1 = fig.add_subplot(211)
             ax1.set_title('Raw wave of ' + filename)
@@ -62,7 +90,15 @@ class Visulalize:
             for xc in xcoords:
                   ax1.axvline(x=xc*16000, c='r')
 
-      def plot_specgram():
+            #save the figure if the setting is set.
+            if save:
+                  raw_fig.savefig(recording+"_raw")
+            if show:
+                  raw_fig.show()
+
+
+
+      def plot_specgram(filename,samples,sample_rate):
             dft_fig= plt.figure(figsize=(14, 8))
 
             xcoords = [0.025, 0.11, 0.23, 0.49]
@@ -82,7 +118,56 @@ class Visulalize:
 
 
 
-      def violinplot_frequency(dirs, freq_ind):
+      def plot_dft(filename,samples,sample_rate):
+            xf, vals = custom_fft(samples, sample_rate)
+            plt.figure(figsize=(12, 4))
+            plt.title('FFT of speaker ' + filename[4:11])
+            plt.plot(xf, vals)
+            plt.xlabel('Frequency')
+            plt.grid()
+            plt.figure(figsize=(10, 7))
+
+
+
+      #choose n recordings for each word in the list and compute the mean.  Then return
+      #the plot of that mean.
+      def plot_mean_raw(word,n,save=False):
+            pass
+
+      #Pick a sample of size n from the recordings of the given word.
+      #use that set to find mean, dft.  Then generate the plot.
+      def plot_mean_dft(word, n,save=False):
+            for filename in filenames:
+                sample_rate, samples = wavfile.read(str(train_audio_path) + filename)
+                   if samples.shape[0] != 16000:
+                        print(f)
+                        continue
+                  xf, vals = custom_fft(samples, 16000)
+                  vals_all.append(vals)
+                  freqs, times, spec = log_specgram(samples, 16000)
+                  spec_all.append(spec)
+
+                  plt.figure(figsize=(14, 5))
+                  plt.subplot(121)
+                  plt.title('Mean fft of ' + direct)
+                  plt.plot(np.mean(np.array(vals_all), axis=0))
+                  plt.grid()
+                  plt.subplot(122)
+
+
+
+
+
+
+      def plot_mean_specgram(words,n,save=False):
+            plt.title('Mean specgram of ' + direct)
+            plt.imshow(np.mean(np.array(spec_all), axis=0).T, aspect='auto', origin='lower',
+                       extent=[times.min(), times.max(), freqs.min(), freqs.max()])
+            plt.yticks(freqs[::16])
+            plt.xticks(times[::16])
+            plt.show()
+
+      def plot_violin_frequency(dirs, freq_ind):
           """ Plot violinplots for given words (waves in dirs) and frequency freq_ind
           from all frequencies freqs."""
 
@@ -118,125 +203,19 @@ class Visulalize:
       #The figures should be stored in a data frame for efficient access.
       def visualize_recording(filename="_yes_0a7c2a8d_nohash_0",samples,sample_rate):
 
-            freqs, times, spectrogram = log_specgram(samples, sample_rate)
-
-
-            mean = np.mean(spectrogram, axis=0)
-            std = np.std(spectrogram, axis=0)
-            spectrogram = (spectrogram - mean) / std
-
-
-            samples_cut = samples[4000:13000]
-            ipd.Audio(samples_cut, rate=sample_rate)
-
-
-
-
-
             plot_raw(filename,samples_cut,sample_rate)
-            ax2 = fig.add_subplot(212)
-            ax2.set_title('Spectrogram of ' + filename)
-            ax2.set_ylabel('Frequencies * 0.1')
-            ax2.set_xlabel('Samples')
-            ax2.imshow(spectrogram_cut.T, aspect='auto', origin='lower',
-                       extent=[times.min(), times.max(), freqs.min(), freqs.max()])
-            ax2.set_yticks(freqs[::16])
-            ax2.set_xticks(times[::16])
+            plot_dft(filename,samples,sample_rate)
+            plot_specgram(filename,samples,sample_rate)
 
 
 
-
-
-
-
-      #iterate through the words and count frequency. Then make a bar graph.
-      def plotWordFrequency():
-            dirs = [f for f in os.listdir(train_audio_path) if isdir(join(train_audio_path, f))]
-            dirs.sort()
-            print('Number of labels: ' + str(len(dirs)))
-
-
-
-            number_of_recordings = []
-            for direct in dirs:
-                  waves = [f for f in os.listdir(join(train_audio_path, direct)) if f.endswith('.wav')]
-                  number_of_recordings.append(len(waves))
-
-                  plt.figure(figsize=(14,8))
-                  plt.bar(dirs, number_of_recordings)
-                  plt.title('Number of recordings in given label')
-                  plt.xticks(rotation='vertical')
-                  plt.ylabel('Number of recordings')
-                  plt.xlabel('Words')
-                  plt.show()
-
-
-      def custom_fft(y, fs):
-          T = 1.0 / fs
-          N = y.shape[0]
-          yf = fft(y)
-          xf = np.linspace(0.0, 1.0/(2.0*T), N//2)
-          vals = 2.0/N * np.abs(yf[0:N//2])
-          return xf, vals
-
-      #pick a sample of n utterances(if possible.) of the given word and return the
-      def visulaize_word(word="on",n=4)
+      #pick a sample of n recordings(if possible.) of the each of the given words
+      #and generates the
+      #figures for list of given words:
+      def visulaize_words(word=["on"],n=4, save=False,show=True)
             filenames = [filename for filename in os.listdir(join(train_audio_path, direct))
                         if f.endswith('.wav') and get_word(filename)==word]
-
-
-            for filename in filenames:
-                sample_rate, samples = wavfile.read(str(train_audio_path) + filename)
-                xf, vals = custom_fft(samples, sample_rate)
-                plt.figure(figsize=(12, 4))
-                plt.title('FFT of speaker ' + filename[4:11])
-                plt.plot(xf, vals)
-                plt.xlabel('Frequency')
-                plt.grid()
-                plt.figure(figsize=(10, 7))
-
-                  plt.title('Spectrogram of ' + filename)
-                  plt.ylabel('Freqs')
-                  plt.xlabel('Time')
-                  plt.imshow(spectrogram.T, aspect='auto', origin='lower',
-                       extent=[times.min(), times.max(), freqs.min(), freqs.max()])
-                  plt.yticks(freqs[::16])
-                  plt.xticks(times[::16])
-                  plt.show()
-
-                  if samples.shape[0] != 16000:
-                        print(f)
-                        continue
-                  xf, vals = custom_fft(samples, 16000)
-                  vals_all.append(vals)
-                  freqs, times, spec = log_specgram(samples, 16000)
-                  spec_all.append(spec)
-
-                  plt.figure(figsize=(14, 5))
-                  plt.subplot(121)
-                  plt.title('Mean fft of ' + direct)
-                  plt.plot(np.mean(np.array(vals_all), axis=0))
-                  plt.grid()
-                  plt.subplot(122)
-                  plt.title('Mean specgram of ' + direct)
-                  plt.imshow(np.mean(np.array(spec_all), axis=0).T, aspect='auto', origin='lower',
-                             extent=[times.min(), times.max(), freqs.min(), freqs.max()])
-                  plt.yticks(freqs[::16])
-                  plt.xticks(times[::16])
-                  plt.show()
-
-
-      #flow a sample
-      def visualize_common_words(words=,):
-            filename = '/yes/01bb6a2a_nohash_1.wav'
-            sample_rate, samples = wavfile.read(str(train_audio_path) + filename)
-            freqs, times, spectrogram = log_specgram(samples, sample_rate)
-
-
-
-            to_keep = 'yes no up down left right on off stop go silence unknown'.split()
             dirs = [d for d in words if d in to_keep]
-
             print(words)
 
             for direct in dirs:
@@ -249,10 +228,21 @@ class Visulalize:
 
 
 
+      #flow a sample
+      def visualize_common_words(words=,):
+
+            sample_rate, samples = wavfile.read(str(train_audio_path) + filename)
+            freqs, times, spectrogram = log_specgram(samples, sample_rate)
+
+
+
+
+
+
 
 
       #create a histogram for the recording lenghth
-      def visualize_recording_lengths(lenght=1):
+      def hist_recording_lengths(words):
             num_of_shorter = 0
             for direct in dirs:
                   waves = [f for f in os.listdir(join(train_audio_path, direct)) if f.endswith('.wav')]
@@ -263,9 +253,6 @@ class Visulalize:
                               print('Number of recordings shorter than 1 second: ' + str(num_of_shorter))
 
 
-
-      def visualize_mean_spectogram(word):
-            pass
 
 
 
@@ -303,8 +290,20 @@ class Visulalize:
             py.iplot(figure)
 
 
+      def create_figs_for_all_words_and_speakers(path="./figs"):
+            filenames=getnames();
+
+            for word in words:
+                  pass
       def main():
 
+            #filename = '/yes/01bb6a2a_nohash_1.wav'
+
+
+
+            words='yes no up down left right on off stop go silence unknown'.split()
+
+            visualize_words(words)
 
             violinplot_frequency(dirs, 20)
             violinplot_frequency(dirs, 50)
