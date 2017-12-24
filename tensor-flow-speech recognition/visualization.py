@@ -31,70 +31,97 @@ from IPython import get_ipython
 
 import timeit
 
-'''Visualizer objects create various visualizations
+from figure_manager import FigureManager
+from data_manager import DataManager
+'''
+Responsible for create various figures representing visualizing data.
+The figures can be cached in a figure manager.
+
+Visualizer objects are responsible for generating the figures.
+
+Other structures are used to cache the figures and interact with
+the data itself.
+
 '''
 class Visualizer:
 
-    def __init__(self,words=None):
-        self.data=pd.DataFrame()
-        self.audio_path = 'C:/Users/vpx365/Documents/Learning_Data/\
-                    tensor-flow-word-recognition/train/audio/'
-        self.words=[]
-
-        self.figures={}
+    def __init__(self,path=None, words=None):
+        self.data=DataManager()
 
 
+        # Generated figures will be cached here.
+        # The figures will be ided by a key.
+        self.figures=FigureManager()
 
-    def set_words(words):
-        self.words=words
 
-    def save_figures():
+
+
+    def cache_figure(self, figid,fig):
+        pass
+
+    def save_figure(self, figid,fig):
+        pass
+
+    def generate_figures(self,mode=None):
         pass
 
 
+    #def get_figure_id()
+
     '''generate log_specgram for given audio recording with given window.'''
-    def log_specgram(self, audio, sample_rate, window_size=20,
+    def log_specgram(self, recording, window_size=20,
                      step_size=10, eps=1e-10):
+        sample_rate=self.data.get_sample_rate(recording)
         nperseg = int(round(window_size * sample_rate / 1e3))
         noverlap = int(round(step_size * sample_rate / 1e3))
-        freqs, times, spec = signal.spectrogram(audio, fs=sample_rate,
+        freqs, times, spec = signal.spectrogram(recording, fs=sample_rate,
                                                 window='hann', nperseg=nperseg,
                                                 noverlap=noverlap,
                                                 detrend=False)
         return freqs, times, np.log(spec.T.astype(np.float32) + eps)
 
-    '''iterate through the words and count frequency. Then make a bar graph.'''
-    def plotWordFrequency(self):
-        dirs = [f for f in os.listdir(train_audio_path)
-                if isdir(join(train_audio_path, f))]
-        dirs.sort()
-        print('Number of labels: ' + str(len(dirs)))
-        number_of_recordings = []
-        for direct in dirs:
-            waves = [f for f in os.listdir(join(train_audio_path, direct))
-                     if f.endswith('.wav')]
-            number_of_recordings.append(len(waves))
-            plt.figure(figsize=(14, 8))
-            plt.bar(dirs, number_of_recordings)
-            plt.title('Number of recordings in given label')
-            plt.xticks(rotation='vertical')
-            plt.ylabel('Number of recordings')
-            plt.xlabel('Words')
-            plt.show()
 
-    def custom_fft(self, y, fs):
-        T = 1.0 / fs
-        N = y.shape[0]
-        yf = fft(y)
-        xf = np.linspace(0.0, 1.0/(2.0*T), N//2)
-        vals = 2.0/N * np.abs(yf[0:N//2])
-        return xf, vals
+
+
+
+    '''
+    iterate through the words and count frequency. Then make a bar graph.
+    The figure is placed in the figures dictionary.  The key is returned.
+    '''
+    def plot_word_bar_graph(self, words=None, show=True):
+
+        #if self.words == None and words == None:
+        #    {}
+
+        #dirs = [f for f in os.listdir(train_audio_path)
+        #       if isdir(join(train_audio_path, f))]
+        words.sort()
+        #print('Number of labels: ' + str(len(dirs)))
+
+        number_of_recordings = []
+
+        for word in words:
+            number_of_recordings.append(len(data.get_recording_paths(word)))
+
+        fig=plt.figure(figsize=(14, 8))
+        fig.bar(words, number_of_recordings)
+        fig.title('Number of recordings in given label')
+        fig.xticks(rotation='vertical')
+        fig.ylabel('Number of recordings')
+        fig.xlabel('Words')
+
+        if show==True:
+            fig.show()
+        self.figures.add(fig)
+        return fig
+
 
     '''plots the raw audio recording that it is given'''
-    def plot_raw(self, recording, path, samples, sample_rate, save=False,
+    def plot_raw(self, recordings, save=False,
                  show=False):
         raw_fig = plt.figure(figsize=(14, 8))
         ax1 = fig.add_subplot(211)
+
         ax1.set_title('Raw wave of ' + filename)
         ax1.set_ylabel('Amplitude')
         ax1.plot(np.linspace(0, sample_rate/len(samples), sample_rate),
@@ -109,7 +136,7 @@ class Visualizer:
         if show:
             raw_fig.show()
 
-    def plot_specgram(self, filename, samples, sample_rate):
+    def plot_specgram(self, recordings):
         dft_fig = plt.figure(figsize=(14, 8))
 
         xcoords = [0.025, 0.11, 0.23, 0.49]
@@ -127,7 +154,7 @@ class Visualizer:
             ax2.set_ylabel('Freqs in Hz')
             ax2.set_xlabel('Seconds')
 
-    def plot_dft(self, filename, samples, sample_rate):
+    def plot_dft(self, recording):
         xf, vals = custom_fft(samples, sample_rate)
         plt.figure(figsize=(12, 4))
         plt.title('FFT of speaker ' + filename[4:11])
@@ -199,7 +226,8 @@ class Visualizer:
         if show:
             plt.show()
 
-    '''Returns the following figures for a given recording:
+    '''
+    Returns the following figures for a given recording:
     #-raw plot
     #-DFT plot
     #-Log Specgram
@@ -291,34 +319,13 @@ class Visualizer:
         for word in words:
             pass
 
-    def run(self):
-        #start = timeit.default_timer()
-        #filename = '/yes/01bb6a2a_nohash_1.wav'
-
-        self.visualize_recording("_yes_0a7c2a8d_nohash_0", samples, sample_rate)
-
-
-
-        self.visualize_words(words)
-        self.violinplot_frequency(dirs, 20)
-        self.violinplot_frequency(dirs, 50)
-        self.visualize_recording(filename="_yes_0a7c2a8d_nohash_0")
-        self.anomoly_detection()
-
-
-      #stop = timeit.default_timer()
-      #total_time = stop - start
-
-      # output running time in a nice format.
-      #mins, secs = divmod(total_time, 60)
-      #hours, mins = divmod(mins, 60)
-
-      #print("Total running time: %d:%d:%d.\n"  % (hours, mins, secs))
 
 
 
 
 if __name__ == "__main__":
     visualizer = Visualizer(words = 'yes no up down left right on off \
-                stop go silence unknown'.split())
+                stop go silence unknown'.split(),path='C:/Users/vpx365/\
+                Documents/Learning_Data/tensor-flow-word-recognition/\
+                train/audio/')
     visualizer.run()
