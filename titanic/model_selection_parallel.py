@@ -96,7 +96,7 @@ def evaluateWorkflow(dataset,code, impu, filt,feat,model):
 
         cv_results=model_selection.cross_val_score(model[1], X_train,Y_train, cv=kfold, scoring=scoring)
         objective_score=objective(cv_results)#log=log+"objective score is " +str(objective_score)
-        print(log)
+        #print(log)
         return [code,impu,filt,feat,model[0],model[1],objective_score]
     except ValueError as error:
         print(log+"cross validation failed.")
