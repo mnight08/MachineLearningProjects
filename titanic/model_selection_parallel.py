@@ -155,7 +155,7 @@ if __name__ == '__main__':
        for code,impu,filt,fea,model in itertools.product(coder_list,imputer_list,filter_list,feature_selector_list,model_list.items())))
 
 
-
+    colleseum_results.columns=['code','impu','filt','feat','model0','model1','objective_score']
 
 
 
@@ -172,5 +172,10 @@ if __name__ == '__main__':
     end = time.time()
     print("Computation Time: "+ str(end - start))
 
+
+    print("Best workflows are:")
+    colleseum_results[colleseum_results['objective_score']==
+                      colleseum_results['objective_score'].max()]
+    
 
 

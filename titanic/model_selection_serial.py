@@ -126,7 +126,7 @@ for code,impu,filt,fea,model in itertools.product(coder_list,imputer_list,filter
 
 colleseum_results=pandas.DataFrame(colleseum_results)
 
-
+colleseum_results.columns=['code','impu','filt','feat','model0','model1','objective_score'
 
 
 
@@ -141,3 +141,7 @@ colleseum_results=pandas.DataFrame(colleseum_results)
 
 end = time.time()
 print("Computation Time: "+ str(end - start))
+    print("Best workflows are:")
+    colleseum_results[colleseum_results['objective_score']==
+                      colleseum_results['objective_score'].max()]
+    
