@@ -9,7 +9,7 @@ Created on Fri Oct 13 12:27:32 2017
 
  # Load libraries
 import pandas
-from pandas.tools.plotting import scatter_matrix
+from pandas.plotting import scatter_matrix
 import matplotlib.pyplot as plt
 from sklearn import model_selection
 from sklearn.metrics import classification_report
@@ -31,25 +31,17 @@ dataset = pandas.read_csv(url, names=names)
  # shape
 print(dataset.shape)
 
-
-
-
- # head
-print(dataset.head(20))
-
+# head
+#print(dataset.head(20))
  
 # descriptions
 print(dataset.describe())
 
 
-# class distribution
-print(dataset.groupby('class').size())
 
-
-
-# histograms
-dataset.hist()
-plt.show()
+# histograms of the variables
+#dataset.hist()
+#plt.show()
 
 
  # box and whisker plots
@@ -64,7 +56,20 @@ plt.show()
 
 
 
+# group the data by type of iris and makd scatter matrix.
+groupby=dataset.groupby('class')
+print(groupby.size())
+for name, group in groupby:
+    print(name + " data visualization")
+    scatter_matrix(group)
+    group.plot(kind='box', subplots=True, layout=(2,2), sharex=False, sharey=False)
+    plt.show()
+
  
+    
+    
+    
+print("Setting up Cross validation:")
 #split-out dataset for sanity
 array=dataset.values
 
@@ -96,6 +101,8 @@ results = []
 names = []
 
 
+print("Training models and cross validating with 80 percent of data:")
+print("Name: mean cv accuracy (standard deviation)" )
 for name, model in models:
     kfold = model_selection.KFold(n_splits=10, random_state=seed)
     cv_results=model_selection.cross_val_score(model, X_train,Y_train, cv=kfold, scoring=scoring)
@@ -105,8 +112,9 @@ for name, model in models:
     print(msg)
 
 # Compare Algorithms
+print("visualizing cross validation results")
 fig = plt.figure()
-fig.suptitle('Algorithm Comparison')
+fig.suptitle('Model Comparison')
 ax = fig.add_subplot(111)
 plt.boxplot(results)
 ax.set_xticklabels(names)
@@ -116,6 +124,6 @@ plt.show()
 svm = SVC()
 svm.fit(X_train, Y_train)
 predictions = svm.predict(X_validation)
-print(accuracy_score(Y_validation, predictions))
+print("Sanity Check Accuracy of best model:"+ str(accuracy_score(Y_validation, predictions)))
 print(confusion_matrix(Y_validation, predictions))
 print(classification_report(Y_validation, predictions))
