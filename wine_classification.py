@@ -1,6 +1,3 @@
-
-
-
 # -*- coding: utf-8 -*-
 """
 Perform exhaustive feature selection using cross validation using svm model.
