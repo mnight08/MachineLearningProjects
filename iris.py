@@ -22,7 +22,13 @@ from sklearn.discriminant_analysis import LinearDiscriminantAnalysis
 from sklearn.naive_bayes import GaussianNB
 from sklearn.svm import SVC
 
- 
+import seaborn as sns
+
+def iris_box_plot(dataset):
+    sns.set_style("whitegrid")
+    irises=sns.boxplot(x="class", y="cm", data=dataset)
+
+
 # Load dataset
 url = "https://archive.ics.uci.edu/ml/machine-learning-databases/iris/iris.data"
 names = ['sepal-length', 'sepal-width', 'petal-length', 'petal-width', 'class']
