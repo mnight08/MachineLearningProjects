@@ -24,9 +24,9 @@ from sklearn.svm import SVC
 
 import seaborn as sns
 
-def iris_box_plot(dataset):
+def iris_box_plot(dataset,kind="sepal-width"):
     sns.set_style("whitegrid")
-    irises=sns.boxplot(x="class", y="cm", data=dataset)
+    irises=sns.boxplot(x="class", y=kind, data=dataset)
 
 
 # Load dataset
