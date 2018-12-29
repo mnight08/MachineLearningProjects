@@ -42,22 +42,22 @@ class DataManager:
         else:
             self.train=pq.read_pandas(self.load_path+"train.parquet").to_pandas()
         
-                   
-        
+    def load_meta_data(self, ids=None):
+        self.train_meta=pd.read_csv(self.load_path+"metadata_train.csv")
     
     
-    def plot_spectogram(self, id):
-        x = np.linspace(0,1/50,80000)
-        f, t, Sxx = signal.spectrogram(x, self.train.iloc[:,id])
+    def plot_spectrogram(self, id):
+        f, t, Sxx = signal.spectrogram(self.train.iloc[:,id], 800000/20*1000, mode ='magnitude')
         plt.pcolormesh(t, f, Sxx)
         plt.ylabel('Frequency [Hz]')
         plt.xlabel('Time [sec]')
         plt.show()
-    
+    def plot_periodogram(self, id):
+        f, Pxx_den = signal.periodogram(self.train.iloc[:,id], 800000/20*1000)
     
     def plot_signal(self, id):
-         x = np.linspace(0,1/50,80000)
-         plt.plot(x,self.train.iloc[:,3])         
+         x = np.linspace(0,1/50,800000)
+         plt.plot(x,self.train.iloc[:,id])         
          plt.ylabel('Voltage')
          plt.xlabel('Time [sec]')
          plt.show()
