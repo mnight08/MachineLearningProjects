@@ -6,10 +6,6 @@ variables and combinations.
 @author: vpx365
 """
 
-'''
-Create a 
-
-'''
 from datamanager import DataManager
 import matplotlib as plt
 import pandas as pd
@@ -17,46 +13,36 @@ import seaborn as sns
 import numpy as np
 import functools
 
-class DataExplorer():
-    
-    make_path="../fig/"
+class DataExplorer(): 
+    '''
+    Create various plots of the signals, and signal features.
+
+    '''
+    make_path="../../../Machine_Learning_Artifacts"
     dm=DataManager()
 
 
-    '''Needs to be finished.  '''
-    def visualize_events_year(self,year=2010):
-        play_by_play=self.dm.load_play_by_play_events(year)
-        print(play_by_play['EventType'].value_counts())
-        grouped=play_by_play.groupby('EventType')
-        for group in grouped.groups:
-            pass
-    
-    
 
-    '''
-    call the visualize events for each year from 2010-2017
-    '''
-    def visualize_events_all(self):
-        play_by_play=self.dm.load_play_by_play_events(year)
-        
-        yearly_event_frequency=play_by_play['EventType'].value_counts()
-        print(yearly_event_frequency)
-        yearly_event_frequency.hist()
+    
+    def plot_spectrogram(self, id):
+        ''''''
+        f, t, Sxx = signal.spectrogram(self.train.iloc[:,id], 800000/20*1000, mode ='magnitude')
+        plt.pcolormesh(t, f, Sxx)
+        plt.ylabel('Frequency [Hz]')
+        plt.xlabel('Time [sec]')
+        plt.show()
+    def plot_periodogram(self, id):
+        f, Pxx_den = signal.periodogram(self.train.iloc[:,id], 800000/20*1000)
+    
+    def plot_signal(self, id):
+         x = np.linspace(0,1/50,800000)
+         plt.plot(x,self.train.iloc[:,id])         
+         plt.ylabel('Voltage')
+         plt.xlabel('Time [sec]')
+         plt.show()
     
     
     
-    
-    '''
-    Create the body of a latex table giving the frequency and relative frequecny
-    for the event types.  
-    '''
-    def make_frequency_table_events(self):
-        table=self.dm.get_all_pbp_event_data()        
-        counts=table['EventType'].value_counts()
-        total=sum([counts[key] for key in counts.keys()])
-        tex=[key+"&"+str(counts[key])+"&{:.2%} \\\\\hline".format(counts[key]/total) for key in counts.keys()]
-        for x in tex:
-            print(x.replace('%','\%').replace('_','\_'))
     
  
     '''

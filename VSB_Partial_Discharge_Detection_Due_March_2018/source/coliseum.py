@@ -25,6 +25,7 @@ import pandas as pd
 
 from dataexplorer import DataExplorer
 from datamanager import DataManager
+from featureextractor import FeatureExtractor
 from transform import *
 
 def make_pipelines(transform_class_list, batches=1):
@@ -204,11 +205,42 @@ def evaluate_pipeline(x_train, y_train, pipeline, scorer, kfold):
         print(error)
         return float('nan')
         #print(traceback.print_tb(error.__traceback__))
-def make_submission(dm, coliseum_results, stage):
-    '''Create the kaggle format submissions of all possilbe games given the MM seeds.
-    The output of this will be submitted to kaggle.'''
-    pass
-def run_tests(dm, stage=1, n_jobs=1):
+
+
+def get_best_model(dm, coliseum_results):
+    '''Return a single pipeline that performed the best on the training data and 
+    train it with the full training set.'''
+    model = None
+    
+    return model
+
+
+
+def make_submission(dm, coliseum_results):
+    '''Choose the best model based on coliseum results, take the test data, 
+    extract the features of each measurement, predict the class of each 
+    measurement, then format for kaggle. The format is signal_id, class.  
+    The testing data set is much larger than the training set at over 8 gb. 
+    The features will need to be extracted in chunks.'''
+    fe = FeatureExtractor(dm)
+    best_model = get_best_model(coliseum_results)
+    submission_chunks = []
+    
+    pd.DataFrame(columns = ['signal_id', 'target'])
+    for chunk in dm.get_test_data_chunks(num_chunks=20):  
+        x_test = fe.make_x_train_data()
+        y_pred=best_model.predict(x_test)
+        submission_chunk=pd.DataFrame(columns = ['signal_id', 'target'])
+        submission_chunks.append(submission_chunk)
+        
+        
+        
+    submission = pd.concat(submission_chunks)
+    return submission.to_csv()
+
+    
+    
+def run_tests(dm, n_jobs=1):
     '''Run the stage one and stage 2 tests for the kaggle comp.
     Stage 1 consist of predicting the marchmadness outcome for every possible
     team matchup of the seeded teams each year.
@@ -271,6 +303,9 @@ def run_tests(dm, stage=1, n_jobs=1):
     end = time.time()
     print("Computation Time: "+ str(end - start))
     return x_train, y_train, coliseum_results, best, y_pred_list
+
+
+
 
 #A sanity check for the program working.
 if __name__ == '__main__':
