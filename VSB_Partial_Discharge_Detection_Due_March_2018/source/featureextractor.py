@@ -47,3 +47,6 @@ class FeatureExtractor:
         x_train=None
         
         return x_train
+
+    def reduce_noise(self):
+        pass
