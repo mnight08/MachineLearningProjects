@@ -40,13 +40,16 @@ class DataManager:
         self.test = None
     
     def load_signals(self, ids=None):
+        
         if isinstance(ids, int):
-            self.train=pq.read_pandas(self.load_path+"train.parquet",columns=[str(ids)]).to_pandas()
+            signals=pq.read_pandas(self.load_path+"train.parquet",columns=[str(ids)]).to_pandas()
             
         elif isinstance(ids, list):
-            self.train=pq.read_pandas(self.load_path+"train.parquet",columns=[str(i) for i in ids]).to_pandas()
+            signals=pq.read_pandas(self.load_path+"train.parquet",columns=[str(i) for i in ids]).to_pandas()
         elif ids=="all":
-            self.train=pq.read_pandas(self.load_path+"train.parquet").to_pandas()
+            signals=pq.read_pandas(self.load_path+"train.parquet").to_pandas()
+        
+        self.train=pd.concat([self.train, signals], axis=1)
         
     def get_measurements(self, measurement_id):
         '''A measurement consist of three signals at appropriate phases taken 
@@ -56,3 +59,11 @@ class DataManager:
         
     def load_test_data(self, ids=None):
         pass
+
+    def load_missing_signals(self, ids):
+        if self.train is not None:
+            missing = [str(id) for id in ids if str(id) not in self.train.index]
+            
+        else:
+            missing = ids
+        self.load_signals(missing)

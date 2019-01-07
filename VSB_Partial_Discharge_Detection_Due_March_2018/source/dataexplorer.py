@@ -37,12 +37,36 @@ class DataExplorer():
         f, Pxx_den = signal.periodogram(self.dm.train.iloc[:,ids], 800000/20*1000)
     
     def plot_signal(self, ids):
-         x = np.linspace(0,1/50,800000)
-         plt.plot(x,self.dm.train.iloc[:,ids])         
+         x = np.linspace(0,1/50,800000)       
+         if isinstance(ids, int):
+             ids=[ids]
+         #Check if 
+         self.dm.load_missing_signals(ids)
+         state = self.dm.train_meta.loc[self.dm.train_meta['signal_id'].isin(ids),'target'].sum()
+         plt.plot(x,self.dm.train.loc[:,[str(id) for id in ids]])         
          plt.ylabel('Voltage')
          plt.xlabel('Time [sec]')
+         plt.title("Signals: "+str(ids)+ " Num Failures: "+ str(state))
          plt.show()
+         
+        
+    def get_index_signals(self,state=0):
+        '''Reutrn the columns of signals that are experiencing the state: 0 for good, 1 for partial discharge.'''
+        return [str(id) for id in self.dm.train_meta.groupby('target').groups[state]]
     
+    def get_index_triple(self,state=0):
+        ''''Return the list of integer ids of triples that are experiencing the given state.  0, for good,
+        1 for one bad line, 2, 3, etc.'''
+        return [id for id in self.dm.train_meta.groupby('target').groups[state]]
+    def plot_triple(self, ids):
+        if isinstance(ids, int):
+            ids=[ids]
+        for id in ids:
+            self.plot_signal([3*id,3*id+1,3*id+2])
+        
+    def get_power(self, ids):
+        '''return the root mean square error '''
+        pass
     
     def plot_statisitc(self):
         pass
