@@ -67,3 +67,7 @@ class DataManager:
         else:
             missing = ids
         self.load_signals(missing)
+        
+        
+    def write_submission(self):
+        sub.to_csv("./baseline_sub.csv",index=False)

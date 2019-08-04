@@ -49,6 +49,19 @@ class DataExplorer():
          plt.title("Signals: "+str(ids)+ " Num Failures: "+ str(state))
          plt.show()
          
+    def plot_signal_pair(self, pairs):
+        
+        x_id,y_id=pairs
+        self.dm.load_missing_signals([x_id,y_id])
+        x=self.dm.train.loc[:,str(x_id)]
+        y=self.dm.train.loc[:,str(y_id)]
+        plt.ylabel('Signal '+ str(x_id))
+        plt.xlabel('Signal '+ str(y_id))
+        plt.title("Signal Pair: "+str(x_id)+ " "+ str(y_id))
+        plt.plot(x,y)
+        plt.show()
+
+        
         
     def get_index_signals(self,state=0):
         '''Reutrn the columns of signals that are experiencing the state: 0 for good, 1 for partial discharge.'''
@@ -99,7 +112,7 @@ class DataExplorer():
         equal to the given num_pdis.  num_pdis refers to the number of phases that 
         are experiencing partial discharge. 0 for none, ..., 3 for all three lines'''
         
-        N = max(dm.train_meta['id_measurement'])
+        N = max(self.dm.train_meta['id_measurement'])
         count=0
         for id in range(0, N+1):
             p1=self.dm.train_meta.loc[3*id,'target']

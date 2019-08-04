@@ -46,7 +46,7 @@ class DataExplorerTester(unittest.TestCase):
         #self.assertFalse(self.dm.load_cities(stage2=True).empty)
         
 
-    #@unittest.skipUnless(testall==True,reason="Developing other Method")
+    @unittest.skipUnless(testall==True,reason="Developing other Method")
     def test_plot_triple(self):
         #check to see if signal is automatically loaded into memory and plotted 
         #for a single id.
@@ -68,14 +68,20 @@ class DataExplorerTester(unittest.TestCase):
         #self.assertFalse(self.dm.load_cities(stage2=False).empty)
         #self.assertFalse(self.dm.load_cities(stage2=True).empty)
     
-    #@unittest.skipUnless(testall==True,reason="Developing other Method")
+    @unittest.skipUnless(testall==True,reason="Developing other Method")
     def test_get_index_signals(self):
         
         pass
     
     
-    
     #@unittest.skipUnless(testall==True,reason="Developing other Method")
+    def test_plot_signal_pair(self):
+        self.de.plot_signal_pair((0,1))
+        self.de.plot_signal_pair((1,2))
+        self.de.plot_signal_pair((0,2))
+
+    
+    @unittest.skipUnless(testall==True,reason="Developing other Method")
     def test_get_index_triples(self):
         
         pass

@@ -15,7 +15,7 @@ import itertools
 
 from sklearn.pipeline  import Pipeline
 from sklearn import model_selection
-from sklearn.metrics import make_scorer, log_loss
+from sklearn.metrics import matthews_corrcoef
 
 
 import pandas as pd
@@ -221,7 +221,7 @@ def make_submission(dm, coliseum_results):
     extract the features of each measurement, predict the class of each 
     measurement, then format for kaggle. The format is signal_id, class.  
     The testing data set is much larger than the training set at over 8 gb. 
-    The features will need to be extracted in chunks.'''
+    The features will need to be extracted in chunks. Should score a submission as well.'''
     fe = FeatureExtractor(dm)
     best_model = get_best_model(coliseum_results)
     submission_chunks = []
@@ -238,6 +238,38 @@ def make_submission(dm, coliseum_results):
     submission = pd.concat(submission_chunks)
     return submission.to_csv()
 
+def make_baseline_submission(dm):
+    '''This serves as a baseline guess. Anything the collesium produces should do better on its score. Simply guessing 0 for all score will
+    get a score of zero due to the structure of the matthews correlation coefficient.  Here we can randomly gues 95% to not have partial discharge, and 5% to have partial discharge.'''
+    sub=dm.test_meta
+    
+    sub['target']=0
+    return sub[['signal_id','target']]
+
+    
+    
+def score_submission(dm, name):
+    ''''Take a submission file based on test data, and compute the matthews correlation coefficient.'''
+    
+    sub = None
+    try:
+        
+        sub = dm.read_file(name)['signal_id','target']
+    except Exception as e: 
+        try:
+            sub=name[['signal_id','target']]
+        except Exception as sub_e:
+            print(e)
+            print(sub_e)
+            print('invalid submission.')
+            return None
+    y_true=dm.train_meta['target']
+    y_pred=sub['target']
+    matthews_corrcoef(y_true, y_pred)
+    
+    
+    
+    
     
     
 def run_tests(dm, n_jobs=1):
@@ -308,7 +340,7 @@ def run_tests(dm, n_jobs=1):
 
 
 #A sanity check for the program working.
-if __name__ == '__main__':
+def test_run_coliseum(stage=1):
     start = time.time()
     if 'dm' not in locals():
         dm = DataManager()

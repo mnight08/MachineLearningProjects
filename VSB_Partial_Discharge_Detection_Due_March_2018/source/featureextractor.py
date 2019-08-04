@@ -47,6 +47,20 @@ class FeatureExtractor:
         x_train=None
         
         return x_train
+    
+    def correlate_phases(self, id_measurement):
+        '''correlate the three phases of the triple given by id_measurement. 
+        Maybe not too effective.  Seems like the correlation does not really 
+        differentiate between the two classes.  maybe compute the distribution 
+        of correlation to get better idea.'''
+        signal_ids=[str(3*id_measurement), str(3*id_measurement+1), str(3*id_measurement+2)]
+        corr=dm.train[signal_ids].corr()
+        return (corr[][],,)
+    
+        self.dm.train[['3','4','5']].corr()
+        
+    
+    
 
     def reduce_noise(self):
         pass
