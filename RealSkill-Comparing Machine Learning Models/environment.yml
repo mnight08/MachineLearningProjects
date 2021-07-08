@@ -1,0 +1,9 @@
+name: real-skill-environment
+channels:
+  - conda-forge
+dependencies:
+  - numpy
+  - matplotlib
+  - pandas
+  - seaborn
+  - sklearn
